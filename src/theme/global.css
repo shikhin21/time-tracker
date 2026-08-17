@@ -414,6 +414,117 @@ select:focus {
   font-size: 15px;
 }
 
+/* ---------- week view ---------- */
+
+.week-view {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.week-cards {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.weekday-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  min-height: 220px;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  gap: 8px;
+  text-align: left;
+}
+
+.weekday-card:hover {
+  border-color: var(--project-accent, var(--color-border-strong));
+}
+
+.weekday-card.today {
+  border-color: var(--project-accent, var(--color-border-strong));
+}
+
+.weekday-card.selected {
+  outline: 2px solid var(--project-accent, var(--color-border-strong));
+  outline-offset: -1px;
+}
+
+.weekday-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.weekday-card-name {
+  font-weight: 700;
+}
+
+.weekday-card.today .weekday-card-name {
+  color: var(--project-accent, var(--color-text-primary));
+}
+
+.weekday-card-date {
+  color: var(--color-text-muted);
+  font-size: 12px;
+}
+
+.weekday-card-entries {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow: hidden;
+}
+
+.weekday-card-entry {
+  display: flex;
+  gap: 6px;
+  align-items: baseline;
+  font-size: 12px;
+  background: var(--project-accent-soft, var(--color-surface-sunken));
+  border-radius: 6px;
+  padding: 4px 6px;
+}
+
+.weekday-card-entry .entry-hours {
+  min-width: 0;
+  font-size: 12px;
+}
+
+.weekday-card-entry .entry-task {
+  font-size: 12px;
+}
+
+.weekday-card-total {
+  font-weight: 700;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.week-totals {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 4px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  font-size: 15px;
+}
+
+.week-totals strong {
+  color: var(--color-text-primary);
+}
+
+.week-totals-split {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
 /* ---------- day detail panel ---------- */
 
 .day-panel {

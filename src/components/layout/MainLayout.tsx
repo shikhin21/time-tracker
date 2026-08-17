@@ -1,5 +1,6 @@
 import { DayDetailPanel } from "../day/DayDetailPanel";
 import { MonthView } from "../views/MonthView";
+import { WeekView } from "../views/WeekView";
 import { useAppStore } from "../../store/appStore";
 import { Header } from "./Header";
 
@@ -18,7 +19,7 @@ export function MainLayout() {
         <main className="view-scroll">
           {view === "year" && <ViewPlaceholder label="Year" />}
           {view === "month" && <MonthView />}
-          {view === "week" && <ViewPlaceholder label="Week" />}
+          {view === "week" && <WeekView />}
         </main>
         {selectedDayKey && <DayDetailPanel key={selectedDayKey} dayKey={selectedDayKey} />}
       </div>
