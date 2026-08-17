@@ -51,14 +51,14 @@ describe("date conflicts", () => {
   it("rejects moving a row onto another row's date, but allows keeping its own", () => {
     expect(
       checkRateDateConflict(rates, {
-        type: "edit-date",
+        type: "edit",
         rateId: "a",
         newEffectiveDate: "2026-06-01",
       }),
     ).toMatch(/already exists/);
     expect(
       checkRateDateConflict(rates, {
-        type: "edit-date",
+        type: "edit",
         rateId: "b",
         newEffectiveDate: "2026-06-01",
       }),
@@ -101,10 +101,10 @@ describe("computeRateImpact", () => {
     ]);
   });
 
-  it("edit-value: open-ended span for the last rate", async () => {
+  it("edit (value): open-ended span for the last rate", async () => {
     const impact = await computeRateImpact(
       rates,
-      { type: "edit-value", rateId: "b", newRate: 80 },
+      { type: "edit", rateId: "b", newRate: 80 },
       count,
     );
     expect(impact.segments).toEqual([
@@ -113,10 +113,10 @@ describe("computeRateImpact", () => {
     expect(impact.affectedEntryCount).toBe(2); // Jun 15 + Jul 1
   });
 
-  it("edit-date: the vacated span falls back to the previous rate", async () => {
+  it("edit (date): the vacated span falls back to the previous rate", async () => {
     const impact = await computeRateImpact(
       rates,
-      { type: "edit-date", rateId: "b", newEffectiveDate: "2026-07-01" },
+      { type: "edit", rateId: "b", newEffectiveDate: "2026-07-01" },
       count,
     );
     expect(impact.segments).toEqual([
@@ -162,7 +162,7 @@ describe("diffRateTimelines with supersession", () => {
     // moving c back to Feb 1 puts it before b, so b (50) supersedes it from
     // Mar 1 — c's 80 now only covers Feb, and the old May-onward 80 reverts
     const changed = applyRateChange(old, {
-      type: "edit-date",
+      type: "edit",
       rateId: "c",
       newEffectiveDate: "2026-02-01",
     });

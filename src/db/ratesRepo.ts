@@ -62,7 +62,7 @@ export async function updateRate(
   if (patch.effectiveDate !== undefined && patch.effectiveDate !== existing.effectiveDate) {
     const siblings = await getRates(existing.projectId);
     const conflict = checkRateDateConflict(siblings, {
-      type: "edit-date",
+      type: "edit",
       rateId: id,
       newEffectiveDate: patch.effectiveDate,
     });

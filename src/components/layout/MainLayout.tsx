@@ -1,4 +1,5 @@
 import { DayDetailPanel } from "../day/DayDetailPanel";
+import { ProjectSettingsPanel } from "../project/ProjectSettingsPanel";
 import { MonthView } from "../views/MonthView";
 import { WeekView } from "../views/WeekView";
 import { YearView } from "../views/YearView";
@@ -8,6 +9,7 @@ import { Header } from "./Header";
 export function MainLayout() {
   const view = useAppStore((s) => s.view);
   const selectedDayKey = useAppStore((s) => s.selectedDayKey);
+  const settingsOpen = useAppStore((s) => s.settingsOpen);
 
   return (
     <div className="app">
@@ -20,6 +22,7 @@ export function MainLayout() {
         </main>
         {selectedDayKey && <DayDetailPanel key={selectedDayKey} dayKey={selectedDayKey} />}
       </div>
+      {settingsOpen && <ProjectSettingsPanel />}
     </div>
   );
 }

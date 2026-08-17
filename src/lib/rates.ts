@@ -32,8 +32,7 @@ export function resolveRate<T extends RateLike>(
 
 export type RateChange =
   | { type: "add"; effectiveDate: string; rate: number }
-  | { type: "edit-value"; rateId: string; newRate: number }
-  | { type: "edit-date"; rateId: string; newEffectiveDate: string }
+  | { type: "edit"; rateId: string; newRate?: number; newEffectiveDate?: string }
   | { type: "delete"; rateId: string };
 
 /** One rate per (project, effectiveDate). Returns the user-facing rejection
@@ -45,11 +44,11 @@ export function checkRateDateConflict(
   const targetDate =
     change.type === "add"
       ? change.effectiveDate
-      : change.type === "edit-date"
-        ? change.newEffectiveDate
+      : change.type === "edit"
+        ? (change.newEffectiveDate ?? null)
         : null;
   if (targetDate === null) return null;
-  const excludeId = change.type === "edit-date" ? change.rateId : null;
+  const excludeId = change.type === "edit" ? change.rateId : null;
   const clash = rates.find(
     (r) => r.effectiveDate === targetDate && r.id !== excludeId,
   );
@@ -65,13 +64,15 @@ export function applyRateChange(rates: RateLike[], change: RateChange): RateLike
         ...rates,
         { id: "(new)", effectiveDate: change.effectiveDate, rate: change.rate },
       ];
-    case "edit-value":
+    case "edit":
       return rates.map((r) =>
-        r.id === change.rateId ? { ...r, rate: change.newRate } : r,
-      );
-    case "edit-date":
-      return rates.map((r) =>
-        r.id === change.rateId ? { ...r, effectiveDate: change.newEffectiveDate } : r,
+        r.id === change.rateId
+          ? {
+              ...r,
+              rate: change.newRate ?? r.rate,
+              effectiveDate: change.newEffectiveDate ?? r.effectiveDate,
+            }
+          : r,
       );
     case "delete":
       return rates.filter((r) => r.id !== change.rateId);

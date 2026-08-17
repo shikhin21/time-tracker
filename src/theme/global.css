@@ -723,6 +723,115 @@ select:focus {
   color: var(--color-text-primary);
 }
 
+/* ---------- rates section + impact dialog ---------- */
+
+.rates-section {
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.rates-section h3 {
+  font-size: 13px;
+  margin-bottom: 8px;
+}
+
+.rates-current {
+  margin-bottom: 10px;
+  color: var(--color-text-secondary);
+}
+
+.rates-current strong {
+  color: var(--color-text-primary);
+}
+
+.rates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.rate-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--color-surface-sunken);
+  border-radius: 8px;
+}
+
+.rate-row-date {
+  flex: 1;
+  color: var(--color-text-secondary);
+}
+
+.rate-row-value {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.rate-fields {
+  padding: 10px;
+  border: 1px solid var(--project-accent, var(--color-border-strong));
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rate-fields-inputs {
+  display: flex;
+  gap: 8px;
+}
+
+.rate-fields-inputs input[type="date"] {
+  flex: 1;
+}
+
+.rate-fields-inputs input:not([type="date"]) {
+  width: 110px;
+}
+
+.impact-intro,
+.impact-none {
+  margin-bottom: 10px;
+  color: var(--color-text-secondary);
+}
+
+.impact-segments {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.impact-segments li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  background: var(--color-surface-sunken);
+  border-radius: 8px;
+}
+
+.impact-span {
+  color: var(--color-text-secondary);
+}
+
+.impact-entries {
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+
+.impact-warning {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
 /* ---------- onboarding ---------- */
 
 .onboarding {
