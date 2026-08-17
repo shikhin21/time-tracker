@@ -1,12 +1,9 @@
 import { DayDetailPanel } from "../day/DayDetailPanel";
 import { MonthView } from "../views/MonthView";
 import { WeekView } from "../views/WeekView";
+import { YearView } from "../views/YearView";
 import { useAppStore } from "../../store/appStore";
 import { Header } from "./Header";
-
-function ViewPlaceholder({ label }: { label: string }) {
-  return <div className="app-centered">{label} view</div>;
-}
 
 export function MainLayout() {
   const view = useAppStore((s) => s.view);
@@ -17,7 +14,7 @@ export function MainLayout() {
       <Header />
       <div className="content-row">
         <main className="view-scroll">
-          {view === "year" && <ViewPlaceholder label="Year" />}
+          {view === "year" && <YearView />}
           {view === "month" && <MonthView />}
           {view === "week" && <WeekView />}
         </main>

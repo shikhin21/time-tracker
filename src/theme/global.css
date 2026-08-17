@@ -414,6 +414,95 @@ select:focus {
   font-size: 15px;
 }
 
+/* ---------- year view ---------- */
+
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(280px, 1fr));
+  gap: 18px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.year-month {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px 12px;
+}
+
+.year-month-name {
+  font-weight: 700;
+  font-size: 14px;
+  padding: 2px 6px;
+  margin: 0 0 6px -6px;
+  border-radius: 6px;
+  color: var(--project-accent, var(--color-text-primary));
+}
+
+.year-month-name:hover {
+  background: var(--project-accent-soft, var(--color-surface-sunken));
+}
+
+.year-week-row {
+  display: grid;
+  grid-template-columns: 22px repeat(7, 1fr) 40px;
+  gap: 1px;
+  align-items: center;
+}
+
+.year-week-num {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.year-day {
+  font-size: 11px;
+  text-align: center;
+  padding: 3px 0;
+  color: var(--color-text-primary);
+  border-radius: 4px;
+}
+
+.year-day.out {
+  color: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.year-day.today {
+  background: var(--project-accent, var(--color-text-primary));
+  color: #fff;
+  font-weight: 700;
+}
+
+.year-week-total {
+  font-size: 11px;
+  text-align: right;
+  padding-right: 2px;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.year-month-total-row {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--color-border);
+}
+
+.year-month-total-label {
+  grid-column: 2 / 9;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-align: right;
+}
+
+.year-month-total-row .year-week-total {
+  color: var(--color-text-primary);
+}
+
 /* ---------- week view ---------- */
 
 .week-view {
