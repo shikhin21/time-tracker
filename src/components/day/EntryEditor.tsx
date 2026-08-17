@@ -58,6 +58,12 @@ export function EntryEditor(props: {
         e.preventDefault();
         void save();
       }}
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.preventDefault(); // claim it so the day panel doesn't also close
+          props.onCancel();
+        }
+      }}
     >
       <div className="entry-editor-fields">
         <input

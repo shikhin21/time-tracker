@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import { addEntry, deleteEntry, updateEntry } from "../../db/entriesRepo";
 import { formatDateKey, formatQuarters } from "../../lib/format";
@@ -14,6 +14,21 @@ export function DayDetailPanel(props: { dayKey: string }) {
   const { entries } = useEntriesRange(props.dayKey && projectId ? projectId : null, props.dayKey, props.dayKey);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      // an open modal or an entry editor (which preventDefaults) owns Escape
+      if (
+        e.key === "Escape" &&
+        !e.defaultPrevented &&
+        !document.querySelector(".modal-backdrop")
+      ) {
+        closeDay();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [closeDay]);
 
   const totalQuarters = entries.reduce((sum, e) => sum + toQuarters(e.hours), 0);
   const otherQuarters = (excludeId: string | null) =>
