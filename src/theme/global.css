@@ -73,6 +73,12 @@ select:focus {
   padding: 16px 20px 24px;
 }
 
+.content-row {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+}
+
 /* ---------- header ---------- */
 
 .header {
@@ -279,6 +285,242 @@ select:focus {
 
 .color-swatch.selected {
   border-color: var(--color-text-primary);
+}
+
+/* ---------- month grid ---------- */
+
+.month-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.month-row {
+  display: grid;
+  grid-template-columns: 44px repeat(7, 1fr) 76px;
+  gap: 3px;
+  align-items: stretch;
+}
+
+.month-header-row {
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.month-header-row .weekday-cell,
+.month-header-row .week-num-cell,
+.month-header-row .week-total-cell {
+  padding: 4px 6px;
+  text-align: center;
+}
+
+.week-num-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+.week-num-cell.clickable:hover {
+  background: var(--project-accent-soft, var(--color-surface-sunken));
+  color: var(--project-accent, var(--color-text-primary));
+}
+
+.day-cell {
+  min-height: 64px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 6px 8px;
+  gap: 2px;
+  text-align: left;
+}
+
+.day-cell:hover {
+  border-color: var(--project-accent, var(--color-border-strong));
+}
+
+.day-cell .day-num {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.day-cell .day-total {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.day-cell.out {
+  background: var(--color-surface-sunken);
+  border-color: transparent;
+}
+
+.day-cell.out .day-total {
+  color: var(--color-text-muted);
+}
+
+.day-cell.today .day-num {
+  color: var(--project-accent, var(--color-text-primary));
+  font-weight: 700;
+}
+
+.day-cell.today {
+  border-color: var(--project-accent, var(--color-border-strong));
+}
+
+.day-cell.selected {
+  outline: 2px solid var(--project-accent, var(--color-border-strong));
+  outline-offset: -1px;
+}
+
+.week-total-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 10px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.month-total-row {
+  margin-top: 4px;
+  padding-top: 8px;
+  border-top: 1px solid var(--color-border);
+}
+
+.month-total-label {
+  grid-column: 2 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.month-total-row .week-total-cell {
+  color: var(--color-text-primary);
+  font-size: 15px;
+}
+
+/* ---------- day detail panel ---------- */
+
+.day-panel {
+  width: 320px;
+  flex: none;
+  background: var(--color-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.day-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.day-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.day-panel-date {
+  color: var(--color-text-secondary);
+  font-size: 13px;
+}
+
+.day-panel-entries {
+  flex: 1;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.day-panel-empty {
+  color: var(--color-text-muted);
+  padding: 8px 0;
+}
+
+.entry-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--color-surface-sunken);
+  border-radius: 8px;
+}
+
+.entry-hours {
+  font-weight: 700;
+  min-width: 44px;
+  font-variant-numeric: tabular-nums;
+}
+
+.entry-task {
+  flex: 1;
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.entry-editor {
+  padding: 10px;
+  border: 1px solid var(--project-accent, var(--color-border-strong));
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.entry-editor-fields {
+  display: flex;
+  gap: 8px;
+}
+
+.entry-hours-input {
+  width: 80px;
+}
+
+.entry-task-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.entry-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.day-panel-add {
+  margin: 0 16px 12px;
+}
+
+.day-panel-total {
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+}
+
+.day-panel-total strong {
+  color: var(--color-text-primary);
 }
 
 /* ---------- onboarding ---------- */
