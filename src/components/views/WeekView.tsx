@@ -1,6 +1,6 @@
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import type { EntryRow } from "../../db/db";
-import { isWeekend, todayKey, weekDates, weekKeyFor } from "../../lib/dates";
+import { isWeekend, todayKey, weekDates, weekKeyFor, weekNumber } from "../../lib/dates";
 import {
   formatDateKey,
   formatHoursLabel,
@@ -62,6 +62,7 @@ export function WeekView() {
 
   return (
     <div className="week-view">
+      <div className="week-number-row">Week {weekNumber(weekKey)}</div>
       <div className="week-cards">
         {days.map((dateKey) => (
           <WeekDayCard

@@ -568,6 +568,12 @@ select:focus {
   gap: 12px;
 }
 
+.week-number-row {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
 .week-cards {
   display: grid;
   grid-template-columns: repeat(7, 1fr);

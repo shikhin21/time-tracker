@@ -3,7 +3,6 @@ import {
   monthKeyOf,
   weekDates,
   weekKeyFor,
-  weekNumber,
   weekStraddlesYear,
   yearOf,
 } from "../../lib/dates";
@@ -59,7 +58,7 @@ function periodLabel(view: ViewKind, anchorKey: string): string {
       const weekKey = weekKeyFor(anchorKey);
       const end = weekDates(weekKey)[6];
       const startPattern = weekStraddlesYear(weekKey) ? "MMM d, yyyy" : "MMM d";
-      return `Week ${weekNumber(weekKey)} · ${formatDateKey(weekKey, startPattern)} – ${formatDateKey(end, "MMM d, yyyy")}`;
+      return `${formatDateKey(weekKey, startPattern)} – ${formatDateKey(end, "MMM d, yyyy")}`;
     }
   }
 }
