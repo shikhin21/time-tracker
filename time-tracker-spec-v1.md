@@ -23,7 +23,7 @@ Track time spent per project by logging daily hours, and view totals rolled up b
 - Cross-project / all-projects views.
 - Project archival.
 - Light/dark theme switching (see §9 — palette is defined for both, only light is wired up).
-- Task autocomplete / task as a grouping dimension.
+- Task as a grouping dimension. (Task **type-ahead** is in scope — see §5.)
 
 ---
 
@@ -103,7 +103,7 @@ rates
 - The user logs **hours typed directly** (not start/end times).
 - Hours are in **0.25 (quarter-hour) increments**. The input **enforces** this — values are snapped/rejected to the nearest valid quarter-hour; non-quarter values are not accepted.
 - **Multiple entries per day per project** are allowed. Each entry has its own `hours` and optional `task`.
-- Each entry may carry an **optional free-text task** label. Task is a label only — it is **not** a grouping dimension, has no autocomplete in v1, and has **no length cap**.
+- Each entry may carry an **optional free-text task** label. Task is a label only — it is **not** a grouping dimension — and has **no length cap**. The task field is a **type-ahead**: as the user types, it **fuzzy-matches the current project's previous task labels** (most recent first) and offers them as suggestions; picking one fills the field, but any free text remains valid.
 - **Validation:**
   - Each entry's `hours` must be **non-negative** (an explicit `0` is a valid entry — see below) and a multiple of 0.25.
   - The **sum of all entries on a given day** (within a project) must be **≤ 24**. Adding/editing an entry that would push the day's total over 24 is rejected.

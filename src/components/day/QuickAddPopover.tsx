@@ -62,6 +62,7 @@ export function QuickAddPopover() {
         Add entry · {formatDateKey(quickAdd.dateKey, "EEE, MMM d")}
       </div>
       <EntryEditor
+        projectId={projectId}
         otherQuarters={otherQuarters}
         onCancel={closeQuickAdd}
         onSave={async (hours, task) => {

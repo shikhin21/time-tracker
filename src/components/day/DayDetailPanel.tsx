@@ -32,6 +32,8 @@ export function DayDetailPanel(props: { dayKey: string }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [closeDay]);
 
+  if (!projectId) return null;
+
   const totalQuarters = entries.reduce((sum, e) => sum + toQuarters(e.hours), 0);
   const otherQuarters = (excludeId: string | null) =>
     entries
@@ -58,6 +60,7 @@ export function DayDetailPanel(props: { dayKey: string }) {
           editingId === entry.id ? (
             <EntryEditor
               key={entry.id}
+              projectId={projectId}
               initialHours={entry.hours}
               initialTask={entry.task}
               otherQuarters={otherQuarters(entry.id)}
@@ -102,8 +105,9 @@ export function DayDetailPanel(props: { dayKey: string }) {
             </div>
           ),
         )}
-        {adding && projectId && (
+        {adding && (
           <EntryEditor
+            projectId={projectId}
             otherQuarters={otherQuarters(null)}
             onCancel={() => setAdding(false)}
             onSave={async (hours, task) => {

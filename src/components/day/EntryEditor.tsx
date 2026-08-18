@@ -6,10 +6,13 @@ import {
   validateDayTotal,
   validateEntryHours,
 } from "../../lib/validation";
+import { TaskInput } from "./TaskInput";
 
-/** Inline editor for one entry: hours (quarter-snapped) + optional task.
- *  `otherQuarters` is the day's total excluding this entry, for the ≤24h check. */
+/** Inline editor for one entry: hours (quarter-snapped) + optional task with
+ *  fuzzy type-ahead. `otherQuarters` is the day's total excluding this entry,
+ *  for the ≤24h check. */
 export function EntryEditor(props: {
+  projectId: string;
   initialHours?: number;
   initialTask?: string | null;
   otherQuarters: number;
@@ -77,13 +80,7 @@ export function EntryEditor(props: {
           onChange={(e) => setHoursText(e.target.value)}
           onBlur={snapOnBlur}
         />
-        <input
-          className="entry-task-input"
-          aria-label="Task"
-          placeholder="Task (optional)"
-          value={task}
-          onChange={(e) => setTask(e.target.value)}
-        />
+        <TaskInput projectId={props.projectId} value={task} onChange={setTask} />
       </div>
       {(inputError || submitError) && (
         <div className="form-error">{submitError ?? inputError}</div>

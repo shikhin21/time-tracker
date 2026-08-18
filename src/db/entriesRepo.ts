@@ -93,3 +93,14 @@ export async function deleteEntry(id: string): Promise<void> {
   const db = await getDb();
   await db.execute("DELETE FROM entries WHERE id = $1", [id]);
 }
+
+/** Distinct previous task labels for a project, most recently used first —
+ *  the type-ahead suggestion pool. */
+export async function getDistinctTasks(projectId: string): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db.select<{ task: string }[]>(
+    "SELECT task FROM entries WHERE projectId = $1 AND task IS NOT NULL AND task != '' GROUP BY task ORDER BY MAX(createdAt) DESC",
+    [projectId],
+  );
+  return rows.map((r) => r.task);
+}
