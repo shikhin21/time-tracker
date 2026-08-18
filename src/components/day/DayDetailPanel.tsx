@@ -129,7 +129,7 @@ export function DayDetailPanel(props: { dayKey: string }) {
       )}
 
       <div className="day-panel-total">
-        Day total: <strong>{formatQuarters(totalQuarters)}h</strong> / 24h
+        Day total: <strong>{formatQuarters(totalQuarters)}h</strong>
       </div>
     </aside>
   );
