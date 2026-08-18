@@ -17,14 +17,9 @@ function ProjectSwitcher() {
   const currentProjectId = useAppStore((s) => s.currentProjectId);
   const selectProject = useAppStore((s) => s.selectProject);
   const [creating, setCreating] = useState(false);
-  const current = projects.find((p) => p.id === currentProjectId);
 
   return (
     <div className="project-switcher">
-      <span
-        className="project-dot"
-        style={{ background: `var(--project-${current?.color ?? "blue"})` }}
-      />
       <select
         aria-label="Project"
         value={currentProjectId ?? ""}
@@ -119,7 +114,6 @@ export function Header() {
   const openSettings = useAppStore((s) => s.openSettings);
   return (
     <header className="header">
-      <ProjectSwitcher />
       <button
         className="icon-btn settings-btn"
         aria-label="Project settings"
@@ -128,6 +122,7 @@ export function Header() {
       >
         ⚙
       </button>
+      <ProjectSwitcher />
       <Breadcrumb />
       <div className="spacer" />
       <PeriodNav />

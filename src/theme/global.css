@@ -158,7 +158,9 @@ select:focus {
 }
 
 .settings-btn {
-  font-size: 16px;
+  font-size: 20px;
+  width: 32px;
+  height: 32px;
 }
 
 /* ---------- project switcher ---------- */
@@ -167,13 +169,6 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.project-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex: none;
 }
 
 /* ---------- breadcrumb + period nav ---------- */
