@@ -14,6 +14,7 @@ export interface EntryRow {
   date: string; // "YYYY-MM-DD"
   hours: number;
   task: string | null;
+  loggedAt: number; // epoch ms — when the entry was logged; unchanged by edits
   createdAt: number;
   updatedAt: number;
 }

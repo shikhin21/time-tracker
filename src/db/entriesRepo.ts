@@ -63,12 +63,13 @@ export async function addEntry(input: {
     date: input.date,
     hours: input.hours,
     task: input.task,
+    loggedAt: now,
     createdAt: now,
     updatedAt: now,
   };
   await db.execute(
-    "INSERT INTO entries (id, projectId, date, hours, task, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-    [entry.id, entry.projectId, entry.date, entry.hours, entry.task, now, now],
+    "INSERT INTO entries (id, projectId, date, hours, task, loggedAt, createdAt, updatedAt) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)",
+    [entry.id, entry.projectId, entry.date, entry.hours, entry.task, now, now, now],
   );
   return entry;
 }

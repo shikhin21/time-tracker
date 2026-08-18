@@ -724,11 +724,22 @@ select:focus {
 
 .entry-row {
   display: flex;
-  align-items: flex-start;
-  gap: 8px;
+  flex-direction: column;
+  gap: 3px;
   padding: 8px 10px;
   background: var(--color-surface-sunken);
   border-radius: 8px;
+}
+
+.entry-row-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.entry-logged-at {
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .entry-hours {

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import { addEntry, deleteEntry, updateEntry } from "../../db/entriesRepo";
 import { userErrorMessage } from "../../lib/errors";
-import { formatDateKey, formatQuarters } from "../../lib/format";
+import { formatDateKey, formatLoggedAt, formatQuarters } from "../../lib/format";
 import { toQuarters } from "../../lib/validation";
 import { useAppStore } from "../../store/appStore";
 import { EntryEditor } from "./EntryEditor";
@@ -73,6 +73,7 @@ export function DayDetailPanel(props: { dayKey: string }) {
             />
           ) : (
             <div key={entry.id} className="entry-row">
+              <div className="entry-row-main">
               <span className="entry-hours">{formatQuarters(toQuarters(entry.hours))}h</span>
               <span className="entry-task">{entry.task ?? ""}</span>
               <button
@@ -102,6 +103,10 @@ export function DayDetailPanel(props: { dayKey: string }) {
               >
                 🗑
               </button>
+              </div>
+              <div className="entry-logged-at">
+                Logged {formatLoggedAt(entry.loggedAt, entry.date)}
+              </div>
             </div>
           ),
         )}

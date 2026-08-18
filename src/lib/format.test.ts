@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { enUS } from "date-fns/locale";
-import { formatHoursLabel, formatQuarters, formatRate, formatWeekSplitLabel } from "./format";
+import {
+  formatHoursLabel,
+  formatLoggedAt,
+  formatQuarters,
+  formatRate,
+  formatWeekSplitLabel,
+} from "./format";
 
 describe("hours and rate formatting", () => {
   it("formats quarters compactly", () => {
@@ -15,6 +21,23 @@ describe("hours and rate formatting", () => {
     expect(formatRate(85)).toBe("$85.00");
     expect(formatRate(87.5)).toBe("$87.50");
     expect(formatRate(0)).toBe("$0.00");
+  });
+});
+
+describe("formatLoggedAt", () => {
+  it("time only when logged on the entry's own day", () => {
+    const ms = new Date(2026, 7, 18, 14, 31).getTime();
+    expect(formatLoggedAt(ms, "2026-08-18", enUS)).toBe("2:31 PM");
+  });
+
+  it("date + time when backfilled from another day", () => {
+    const ms = new Date(2026, 7, 18, 14, 31).getTime();
+    expect(formatLoggedAt(ms, "2026-08-17", enUS)).toBe("Aug 18, 2:31 PM");
+  });
+
+  it("adds the year across a year boundary", () => {
+    const ms = new Date(2027, 0, 2, 9, 5).getTime();
+    expect(formatLoggedAt(ms, "2026-12-31", enUS)).toBe("Jan 2, 2027, 9:05 AM");
   });
 });
 

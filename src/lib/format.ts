@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 import type { Locale } from "date-fns";
-import { getActiveLocale, parseDateKey } from "./dates";
+import { getActiveLocale, parseDateKey, toDateKey, yearOf } from "./dates";
 import { fromQuarters } from "./validation";
 import type { WeekSplitTotal } from "./totals";
 
@@ -24,6 +24,20 @@ export function formatDateKey(
   locale: Locale = getActiveLocale(),
 ): string {
   return format(parseDateKey(dateKey), pattern, { locale });
+}
+
+/** "Logged at" subtext: time only when logged on the entry's own calendar
+ *  day (`2:31 PM`), date + time when backfilled from another day
+ *  (`Aug 17, 9:12 PM`), year added across years. */
+export function formatLoggedAt(
+  loggedAt: number,
+  entryDateKey: string,
+  locale: Locale = getActiveLocale(),
+): string {
+  const d = new Date(loggedAt);
+  if (toDateKey(d) === entryDateKey) return format(d, "p", { locale });
+  const pattern = d.getFullYear() === yearOf(entryDateKey) ? "MMM d, p" : "MMM d, yyyy, p";
+  return format(d, pattern, { locale });
 }
 
 /** Split-week label: `Dec: 12.5h · Jan: 6h`, with years only when the week

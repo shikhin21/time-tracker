@@ -52,7 +52,7 @@ All primary keys are **client-generated UUIDs** (not auto-increment) so records 
 Two different kinds of "date" exist in this model and are stored differently on purpose:
 
 - **Calendar dates** — answer "which day did this happen?" Stored as **`"YYYY-MM-DD"` strings**, with no time and no timezone. This is `entries.date` and `rates.effectiveDate`. Storing these as epoch instants would let timezone/DST shifts move an entry to the wrong calendar day and mis-bucket totals; strings avoid that entirely and sort correctly.
-- **Machine timestamps** — answer "when was this row written?" Stored as **epoch milliseconds**. This is `createdAt` / `updatedAt`. These are true instants, never grouped into calendar buckets, and exist for sync ordering.
+- **Machine timestamps** — answer "when was this row written?" Stored as **epoch milliseconds**. This is `createdAt` / `updatedAt`. These are true instants, never grouped into calendar buckets, and exist for sync ordering. `entries.loggedAt` is also an epoch-ms instant but is **user-facing**: it records when the entry was logged (initially equal to `createdAt`, unchanged by edits) and is displayed in the day detail panel.
 
 ### Tables
 
@@ -68,8 +68,10 @@ entries
   id           uuid            -- primary key, client-generated
   projectId    uuid            -- FK -> projects.id
   date         string          -- "YYYY-MM-DD", the calendar day worked
-  hours        number          -- positive, multiple of 0.25
+  hours        number          -- non-negative, multiple of 0.25
   task         string?         -- optional free text
+  loggedAt     number          -- epoch ms, when the entry was logged; set at
+                               -- creation, unchanged by edits; user-facing
   createdAt    number          -- epoch ms
   updatedAt    number          -- epoch ms
 
@@ -185,7 +187,7 @@ The **day detail panel** (drawer / inline expander) is a **single shared compone
 ### 7.4 Day detail panel (shared component)
 - Opened from the year, month, or week view by tapping a day.
 - **Tapping today's date** (in any view) additionally opens a **quick-add bubble** — a popover with a tooltip arrow pointing at the tapped cell, containing the same add-entry editor — since tapping today usually means "log an entry now". Saving or dismissing the bubble leaves the panel open; other days get no bubble.
-- Lists that day's entries for the current project; each entry shows hours and optional task.
+- Lists that day's entries for the current project; each entry shows hours, optional task, and a **"Logged …" subtext** with the entry's `loggedAt` time (time only when logged on the entry's own day; date + time when backfilled from another day).
 - Supports **add / edit / delete** entries, editing hours (enforced quarter-hour) and the optional free-text task.
 - Enforces the day's **≤ 24h** total (§5).
 
