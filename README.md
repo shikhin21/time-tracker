@@ -10,10 +10,12 @@ date-fns for locale-aware week math.
 ## Development
 
 ```sh
-export PATH="$HOME/.cargo/bin:$PATH"   # rustup toolchain
 npm install
 npm run tauri dev
 ```
+
+If `rustc` isn't found (shell opened before rustup was installed), run
+`export PATH="$HOME/.cargo/bin:$PATH"` first.
 
 The SQLite database lives at
 `~/Library/Application Support/com.shikhin.timetracker/timetracker.db`.
