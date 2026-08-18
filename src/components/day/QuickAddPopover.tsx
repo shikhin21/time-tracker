@@ -24,7 +24,11 @@ export function QuickAddPopover() {
   useEffect(() => {
     if (!quickAdd) return;
     const onMouseDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) closeQuickAdd();
+      const target = e.target as Node;
+      // a re-render during the event can detach the clicked node (e.g. picking
+      // a task suggestion unmounts the dropdown) — that's not an outside click
+      if (!document.contains(target)) return;
+      if (ref.current && !ref.current.contains(target)) closeQuickAdd();
     };
     document.addEventListener("mousedown", onMouseDown);
     return () => document.removeEventListener("mousedown", onMouseDown);

@@ -85,6 +85,7 @@ export function TaskInput(props: {
               onMouseEnter={() => setActive(i)}
               onMouseDown={(e) => {
                 e.preventDefault(); // keep input focus so blur doesn't race the pick
+                e.stopPropagation(); // a pick is not an "outside" click for enclosing popovers
                 pick(task);
               }}
             >
