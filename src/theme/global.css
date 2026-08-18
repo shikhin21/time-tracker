@@ -718,7 +718,7 @@ select:focus {
 
 .entry-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 8px;
   padding: 8px 10px;
   background: var(--color-surface-sunken);
@@ -733,10 +733,9 @@ select:focus {
 
 .entry-task {
   flex: 1;
+  min-width: 0;
   color: var(--color-text-secondary);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .entry-editor {
