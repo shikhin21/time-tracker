@@ -67,7 +67,7 @@ function YearMonthMini(props: {
                   ]
                     .filter(Boolean)
                     .join(" ")}
-                  onClick={() => openDay(dateKey)}
+                  onClick={(e) => openDay(dateKey, e.currentTarget.getBoundingClientRect())}
                 >
                   {Number(dateKey.slice(8, 10))}
                 </button>

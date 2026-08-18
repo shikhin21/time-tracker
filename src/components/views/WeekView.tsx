@@ -29,7 +29,7 @@ function WeekDayCard(props: {
       ]
         .filter(Boolean)
         .join(" ")}
-      onClick={() => openDay(props.dateKey)}
+      onClick={(e) => openDay(props.dateKey, e.currentTarget.getBoundingClientRect())}
     >
       <div className="weekday-card-head">
         <span className="weekday-card-name">{formatDateKey(props.dateKey, "EEE")}</span>

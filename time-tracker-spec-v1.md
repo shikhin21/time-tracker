@@ -184,6 +184,7 @@ The **day detail panel** (drawer / inline expander) is a **single shared compone
 
 ### 7.4 Day detail panel (shared component)
 - Opened from the year, month, or week view by tapping a day.
+- **Tapping today's date** (in any view) additionally opens a **quick-add bubble** — a popover with a tooltip arrow pointing at the tapped cell, containing the same add-entry editor — since tapping today usually means "log an entry now". Saving or dismissing the bubble leaves the panel open; other days get no bubble.
 - Lists that day's entries for the current project; each entry shows hours and optional task.
 - Supports **add / edit / delete** entries, editing hours (enforced quarter-hour) and the optional free-text task.
 - Enforces the day's **≤ 24h** total (§5).

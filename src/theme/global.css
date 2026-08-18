@@ -782,6 +782,45 @@ select:focus {
   color: var(--color-text-primary);
 }
 
+/* ---------- quick-add popover ---------- */
+
+.quick-add-popover {
+  position: fixed;
+  z-index: 40; /* under modals (50) */
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+  padding: 12px;
+}
+
+.quick-add-arrow {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-surface);
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.quick-add-popover.below .quick-add-arrow {
+  top: -7px;
+  border-left: 1px solid var(--color-border-strong);
+  border-top: 1px solid var(--color-border-strong);
+}
+
+.quick-add-popover.above .quick-add-arrow {
+  bottom: -7px;
+  border-right: 1px solid var(--color-border-strong);
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+.quick-add-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin-bottom: 8px;
+}
+
 /* ---------- rates section + impact dialog ---------- */
 
 .rates-section {

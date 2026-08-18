@@ -17,6 +17,14 @@ import { applyProjectAccent, applyTheme } from "../theme/applyTheme";
 export type ViewKind = "year" | "month" | "week";
 export type AppStatus = "loading" | "onboarding" | "ready" | "error";
 
+/** Viewport rect of the tapped day cell (structurally DOMRect-compatible). */
+export interface AnchorRect {
+  top: number;
+  bottom: number;
+  left: number;
+  width: number;
+}
+
 interface AppState {
   status: AppStatus;
   error: string | null;
@@ -27,6 +35,8 @@ interface AppState {
    *  year / month / week from it. */
   anchorKey: string;
   selectedDayKey: string | null;
+  /** Quick-add bubble state: set only when *today's* cell is tapped. */
+  quickAdd: { dateKey: string; anchor: AnchorRect } | null;
   settingsOpen: boolean;
   /** Bumped after every mutation; data hooks refetch on change. */
   dataVersion: number;
@@ -43,8 +53,9 @@ interface AppState {
   setView(view: ViewKind): void;
   drillToMonth(monthKey: string): void;
   drillToWeek(weekKey: string): void;
-  openDay(dateKey: string): void;
+  openDay(dateKey: string, anchor?: AnchorRect): void;
   closeDay(): void;
+  closeQuickAdd(): void;
   openSettings(): void;
   closeSettings(): void;
   goToday(): void;
@@ -73,6 +84,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   view: "month",
   anchorKey: todayKey(),
   selectedDayKey: null,
+  quickAdd: null,
   settingsOpen: false,
   dataVersion: 0,
 
@@ -105,7 +117,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const project = get().projects.find((p) => p.id === id);
     if (!project) return;
     applyProjectAccent(project.color);
-    set({ currentProjectId: id, selectedDayKey: null, settingsOpen: false });
+    set({ currentProjectId: id, selectedDayKey: null, quickAdd: null, settingsOpen: false });
     await settingsRepo.setSetting(settingsRepo.LAST_SELECTED_PROJECT_ID, id);
   },
 
@@ -133,19 +145,28 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setView(view) {
-    set({ view });
+    set({ view, quickAdd: null });
   },
   drillToMonth(monthKey) {
-    set({ view: "month", anchorKey: `${monthKey}-01` });
+    set({ view: "month", anchorKey: `${monthKey}-01`, quickAdd: null });
   },
   drillToWeek(weekKey) {
-    set({ view: "week", anchorKey: weekKey });
+    set({ view: "week", anchorKey: weekKey, quickAdd: null });
   },
-  openDay(dateKey) {
-    set({ selectedDayKey: dateKey });
+  openDay(dateKey, anchor) {
+    // tapping today's cell almost always means "log an entry now" — arm the
+    // quick-add bubble alongside the panel; other days just open the panel
+    const isToday = dateKey === todayKey();
+    set({
+      selectedDayKey: dateKey,
+      quickAdd: isToday && anchor ? { dateKey, anchor } : null,
+    });
   },
   closeDay() {
-    set({ selectedDayKey: null });
+    set({ selectedDayKey: null, quickAdd: null });
+  },
+  closeQuickAdd() {
+    set({ quickAdd: null });
   },
   openSettings() {
     set({ settingsOpen: true });
@@ -155,13 +176,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   goToday() {
     // jump to the current period and open (or switch) the day panel to today
-    set({ anchorKey: todayKey(), selectedDayKey: todayKey() });
+    set({ anchorKey: todayKey(), selectedDayKey: todayKey(), quickAdd: null });
   },
   goPrev() {
-    set((s) => ({ anchorKey: shiftAnchor(s.view, s.anchorKey, -1) }));
+    set((s) => ({ anchorKey: shiftAnchor(s.view, s.anchorKey, -1), quickAdd: null }));
   },
   goNext() {
-    set((s) => ({ anchorKey: shiftAnchor(s.view, s.anchorKey, 1) }));
+    set((s) => ({ anchorKey: shiftAnchor(s.view, s.anchorKey, 1), quickAdd: null }));
   },
 
   bumpData() {
