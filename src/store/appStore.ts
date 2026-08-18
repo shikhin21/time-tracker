@@ -154,7 +154,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ settingsOpen: false });
   },
   goToday() {
-    set({ anchorKey: todayKey() });
+    // jump to the current period and open (or switch) the day panel to today
+    set({ anchorKey: todayKey(), selectedDayKey: todayKey() });
   },
   goPrev() {
     set((s) => ({ anchorKey: shiftAnchor(s.view, s.anchorKey, -1) }));

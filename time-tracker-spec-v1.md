@@ -191,6 +191,7 @@ The **day detail panel** (drawer / inline expander) is a **single shared compone
 - **Year view:** arrows move by year; "Today" jumps to the current year.
 - **Month view:** arrows move by month; "Today" jumps to the current month.
 - **Week view:** arrows move by week; "Today" jumps to the week containing today.
+- In **all three views**, "Today" also **opens the day detail panel for today**; if another day's panel is already open, it switches to today.
 - On open, the app lands on the last selected project, in the **month view of the current month**.
 - **First launch with zero projects** → the create-project flow (the app is unusable without at least one project).
 
