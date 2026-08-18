@@ -157,6 +157,10 @@ select:focus {
   color: var(--color-text-primary);
 }
 
+.settings-btn {
+  font-size: 16px;
+}
+
 /* ---------- project switcher ---------- */
 
 .project-switcher {

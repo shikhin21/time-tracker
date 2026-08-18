@@ -120,13 +120,18 @@ export function Header() {
   return (
     <header className="header">
       <ProjectSwitcher />
+      <button
+        className="icon-btn settings-btn"
+        aria-label="Project settings"
+        title="Project settings"
+        onClick={openSettings}
+      >
+        ⚙
+      </button>
       <Breadcrumb />
       <div className="spacer" />
       <PeriodNav />
       <div className="spacer" />
-      <button className="btn btn-ghost" onClick={openSettings}>
-        Settings
-      </button>
     </header>
   );
 }
