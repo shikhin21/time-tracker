@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import {
   isInMonth,
+  isWeekend,
   monthGridWeeks,
   monthKeyOf,
   todayKey,
@@ -24,6 +25,7 @@ function DayCell(props: {
     <button
       className={[
         "day-cell",
+        isWeekend(props.dateKey) ? "weekend" : "",
         props.inMonth ? "" : "out",
         props.isToday ? "today" : "",
         selectedDayKey === props.dateKey ? "selected" : "",

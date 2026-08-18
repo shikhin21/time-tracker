@@ -11,6 +11,8 @@ export const semanticTokens = {
   background: { light: "#F7F7F5", dark: "#1D1D1B" },
   surface: { light: "#FFFFFF", dark: "#262624" },
   surfaceSunken: { light: "#EFEFEC", dark: "#212120" },
+  /** Subtle wash behind Saturday/Sunday cells — off days. */
+  weekendTint: { light: "#F1F0E9", dark: "#232320" },
   border: { light: "#E1E1DC", dark: "#3A3A36" },
   borderStrong: { light: "#C9C9C2", dark: "#4E4E48" },
   textPrimary: { light: "#1B1B19", dark: "#EDEDEA" },

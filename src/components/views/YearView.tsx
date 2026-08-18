@@ -3,6 +3,7 @@ import { useEntriesRange } from "../../hooks/useEntriesRange";
 import {
   getActiveLocale,
   isInMonth,
+  isWeekend,
   monthGridWeeks,
   todayKey,
   weekNumber,
@@ -59,6 +60,7 @@ function YearMonthMini(props: {
                   key={dateKey}
                   className={[
                     "year-day",
+                    isWeekend(dateKey) ? "weekend" : "",
                     isInMonth(dateKey, monthKey) ? "" : "out",
                     dateKey === props.today ? "today" : "",
                     dateKey === selectedDayKey ? "selected" : "",

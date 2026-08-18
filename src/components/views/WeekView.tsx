@@ -1,6 +1,6 @@
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import type { EntryRow } from "../../db/db";
-import { todayKey, weekDates, weekKeyFor } from "../../lib/dates";
+import { isWeekend, todayKey, weekDates, weekKeyFor } from "../../lib/dates";
 import {
   formatDateKey,
   formatHoursLabel,
@@ -23,6 +23,7 @@ function WeekDayCard(props: {
     <button
       className={[
         "weekday-card",
+        isWeekend(props.dateKey) ? "weekend" : "",
         props.isToday ? "today" : "",
         selectedDayKey === props.dateKey ? "selected" : "",
       ]

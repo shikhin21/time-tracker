@@ -72,6 +72,12 @@ export function isInMonth(dateKey: string, monthKey: string): boolean {
   return dateKey.startsWith(monthKey);
 }
 
+/** Saturday or Sunday — styled as off days in every view. */
+export function isWeekend(dateKey: string): boolean {
+  const day = parseDateKey(dateKey).getDay();
+  return day === 0 || day === 6;
+}
+
 // ---------------------------------------------------------------------------
 // Weeks (locale-driven: the canonical week key is the week's start date)
 // ---------------------------------------------------------------------------

@@ -361,6 +361,10 @@ select:focus {
   color: var(--color-text-primary);
 }
 
+.day-cell.weekend {
+  background: var(--color-weekend-tint);
+}
+
 .day-cell.out {
   background: var(--color-surface-sunken);
   border-color: transparent;
@@ -487,6 +491,10 @@ select:focus {
   border-radius: 4px;
 }
 
+.year-day.weekend {
+  background: var(--color-weekend-tint);
+}
+
 .year-day:hover {
   background: var(--project-accent-soft, var(--color-surface-sunken));
 }
@@ -560,6 +568,10 @@ select:focus {
   padding: 10px;
   gap: 8px;
   text-align: left;
+}
+
+.weekday-card.weekend {
+  background: var(--color-weekend-tint);
 }
 
 .weekday-card:hover {
