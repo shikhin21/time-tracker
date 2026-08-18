@@ -457,6 +457,28 @@ select:focus {
   text-align: center;
 }
 
+.year-header-row {
+  margin-bottom: 2px;
+}
+
+.year-header-row .year-week-num,
+.year-header-row .year-week-total {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  font-size: 9px;
+  color: var(--color-text-muted);
+}
+
+.year-day-name {
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
 .year-day {
   font-size: 11px;
   text-align: center;

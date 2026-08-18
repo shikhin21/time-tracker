@@ -39,6 +39,15 @@ function YearMonthMini(props: {
       </button>
 
       <div className="year-month-grid">
+        <div className="year-week-row year-header-row">
+          <span className="year-week-num">Wk</span>
+          {weeks[0].map((dateKey) => (
+            <span key={dateKey} className="year-day-name">
+              {formatDateKey(dateKey, "EEEEE")}
+            </span>
+          ))}
+          <span className="year-week-total">Hrs</span>
+        </div>
         {weeks.map((week) => {
           const inMonthKeys = week.filter((k) => isInMonth(k, monthKey));
           const quarters = sumForDays(props.dayTotals, inMonthKeys);

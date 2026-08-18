@@ -157,7 +157,7 @@ Year  --tap month-->  Month  --tap week-->  Week  --tap day-->  Day detail panel
 The **day detail panel** (drawer / inline expander) is a **single shared component**, opened by tapping a day in any view (year, month, or week). It is the only editable surface for entries.
 
 ### 7.1 Year view (read-only, tappable)
-- Calendar-style layout (like a Google Calendar yearly view): months laid out in a grid; within each month, weeks are rows of seven day cells; a **week-number column** on the left.
+- Calendar-style layout (like a Google Calendar yearly view): months laid out in a grid; within each month, weeks are rows of seven day cells; a **week-number column** on the left. Each month mini has a **header row**: week-number column ("Wk"), locale-ordered weekday initials, and the hours/totals column ("Hrs").
 - **Day cells are plain** (no heatmap, no per-day numbers required beyond the date), but **tappable**: tapping a day opens the shared **day detail panel** (§7.4) — same as from the month and week views.
 - **Weekly total at the right edge** of each week row (ledger style).
 - **Month total shown below** that month's weeks (near/under the weekly totals column).
