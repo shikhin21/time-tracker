@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { userErrorMessage } from "../../lib/errors";
 import { useAppStore } from "../../store/appStore";
 import { Modal } from "../shared/Modal";
 import { ColorPicker } from "./ColorPicker";
@@ -23,7 +24,21 @@ export function ProjectSettingsPanel() {
       return;
     }
     setError(null);
-    if (trimmed !== project.name) await updateProject(project.id, { name: trimmed });
+    if (trimmed === project.name) return;
+    try {
+      await updateProject(project.id, { name: trimmed });
+    } catch (e) {
+      setError(userErrorMessage(e, "Couldn't rename the project. Please try again."));
+    }
+  };
+
+  const commitColor = async (color: string) => {
+    setError(null);
+    try {
+      await updateProject(project.id, { color });
+    } catch (e) {
+      setError(userErrorMessage(e, "Couldn't change the color. Please try again."));
+    }
   };
 
   return (
@@ -40,10 +55,7 @@ export function ProjectSettingsPanel() {
       </div>
       <div className="form-row">
         <label>Color</label>
-        <ColorPicker
-          value={project.color}
-          onChange={(color) => void updateProject(project.id, { color })}
-        />
+        <ColorPicker value={project.color} onChange={(color) => void commitColor(color)} />
       </div>
       <RatesSection projectId={project.id} />
       <div className="modal-actions">

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import { addEntry, deleteEntry, updateEntry } from "../../db/entriesRepo";
+import { userErrorMessage } from "../../lib/errors";
 import { formatDateKey, formatQuarters } from "../../lib/format";
 import { toQuarters } from "../../lib/validation";
 import { useAppStore } from "../../store/appStore";
@@ -14,6 +15,7 @@ export function DayDetailPanel(props: { dayKey: string }) {
   const { entries } = useEntriesRange(props.dayKey && projectId ? projectId : null, props.dayKey, props.dayKey);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [panelError, setPanelError] = useState<string | null>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -84,8 +86,15 @@ export function DayDetailPanel(props: { dayKey: string }) {
                 className="icon-btn"
                 aria-label="Delete entry"
                 onClick={async () => {
-                  await deleteEntry(entry.id);
-                  bumpData();
+                  try {
+                    await deleteEntry(entry.id);
+                    setPanelError(null);
+                    bumpData();
+                  } catch (e) {
+                    setPanelError(
+                      userErrorMessage(e, "Couldn't delete the entry. Please try again."),
+                    );
+                  }
                 }}
               >
                 🗑
@@ -104,6 +113,7 @@ export function DayDetailPanel(props: { dayKey: string }) {
             }}
           />
         )}
+        {panelError && <div className="form-error">{panelError}</div>}
       </div>
 
       {!adding && (

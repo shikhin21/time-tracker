@@ -3,6 +3,7 @@ import type { RateRow } from "../../db/db";
 import { addRate, deleteRate, makeEntryCounter, updateRate } from "../../db/ratesRepo";
 import { useRates } from "../../hooks/useRates";
 import { todayKey } from "../../lib/dates";
+import { userErrorMessage } from "../../lib/errors";
 import { formatDateKey, formatRate } from "../../lib/format";
 import {
   checkRateDateConflict,
@@ -100,8 +101,16 @@ export function RatesSection(props: { projectId: string }) {
       setError(conflict);
       return;
     }
-    const impact = await computeRateImpact(rates, change, makeEntryCounter(props.projectId));
-    setPending({ change, impact });
+    try {
+      const impact = await computeRateImpact(
+        rates,
+        change,
+        makeEntryCounter(props.projectId),
+      );
+      setPending({ change, impact });
+    } catch (e) {
+      setError(userErrorMessage(e, "Couldn't compute what this change affects. Please try again."));
+    }
   };
 
   const commit = async () => {
@@ -128,7 +137,7 @@ export function RatesSection(props: { projectId: string }) {
       bumpData();
     } catch (e) {
       setPending(null);
-      setError(String(e instanceof Error ? e.message : e));
+      setError(userErrorMessage(e, "Couldn't update the rate. Please try again."));
     }
   };
 

@@ -1,10 +1,8 @@
 import { getDb, type RateRow } from "./db";
+import { RateDateConflictError, ValidationError } from "../lib/errors";
 import { newId } from "../lib/id";
 import { checkRateDateConflict, type CountEntriesFn } from "../lib/rates";
 import { validateRate } from "../lib/validation";
-import { ValidationError } from "./entriesRepo";
-
-export class RateDateConflictError extends Error {}
 
 export async function getRates(projectId: string): Promise<RateRow[]> {
   const db = await getDb();

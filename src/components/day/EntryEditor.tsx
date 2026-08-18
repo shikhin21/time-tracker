@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { userErrorMessage } from "../../lib/errors";
 import {
   snapToQuarter,
   toQuarters,
@@ -46,7 +47,7 @@ export function EntryEditor(props: {
     try {
       await props.onSave(Number(hoursText), task.trim() === "" ? null : task.trim());
     } catch (e) {
-      setSubmitError(String(e instanceof Error ? e.message : e));
+      setSubmitError(userErrorMessage(e, "Couldn't save the entry. Please try again."));
       setBusy(false);
     }
   };

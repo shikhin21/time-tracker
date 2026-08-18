@@ -1,12 +1,11 @@
 import { getDb, type EntryRow } from "./db";
+import { ValidationError } from "../lib/errors";
 import { newId } from "../lib/id";
 import {
   toQuarters,
   validateDayTotal,
   validateEntryHours,
 } from "../lib/validation";
-
-export class ValidationError extends Error {}
 
 export async function getEntriesInRange(
   projectId: string,

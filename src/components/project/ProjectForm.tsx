@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { userErrorMessage } from "../../lib/errors";
 import { validateRate } from "../../lib/validation";
 import { DEFAULT_PROJECT_COLOR } from "../../theme/tokens";
 import { ColorPicker } from "./ColorPicker";
@@ -45,7 +46,7 @@ export function ProjectForm(props: {
     try {
       await props.onSubmit({ name: trimmed, color, initialRate });
     } catch (e) {
-      setError(String(e instanceof Error ? e.message : e));
+      setError(userErrorMessage(e, "Couldn't save the project. Please try again."));
       setBusy(false);
     }
   };
