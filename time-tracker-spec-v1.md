@@ -146,7 +146,7 @@ Rate is **stored, displayed, and editable only**. **No cost is calculated or sho
 
 All views are **scoped to one project at a time**. Switching projects re-scopes all views. Week start is **locale-aware**, following the system locale (e.g. US locale → Sunday start); week **numbers** are likewise locale-driven (`getWeek`-style, **not** ISO).
 
-**Saturday and Sunday cells** carry a subtle background tint (a dedicated semantic token with light + dark values) in all three views, marking them as off days.
+**Saturday and Sunday cells** are subtly marked as off days in all three views (a dedicated semantic tint token with light + dark values): month and week views tint the whole cell; the year view draws a small tinted **circle behind the date number** (whole-cell tint is too heavy at that density).
 
 Navigation hierarchy (drill down and back up the same chain):
 

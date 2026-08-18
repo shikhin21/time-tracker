@@ -489,10 +489,25 @@ select:focus {
   padding: 3px 0;
   color: var(--color-text-primary);
   border-radius: 4px;
+  position: relative;
+  z-index: 0; /* own stacking context so the weekend circle can sit behind the number */
 }
 
-.year-day.weekend {
+.year-day.weekend::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
   background: var(--color-weekend-tint);
+  z-index: -1;
+}
+
+.year-day.today::before {
+  display: none; /* today's filled highlight replaces the weekend circle */
 }
 
 .year-day:hover {
