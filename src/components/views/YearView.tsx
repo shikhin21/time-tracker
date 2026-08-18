@@ -19,6 +19,8 @@ function YearMonthMini(props: {
   today: string;
 }) {
   const drillToMonth = useAppStore((s) => s.drillToMonth);
+  const openDay = useAppStore((s) => s.openDay);
+  const selectedDayKey = useAppStore((s) => s.selectedDayKey);
   const locale = getActiveLocale();
   const monthKey = `${props.year}-${String(props.month).padStart(2, "0")}`;
   const weeks = useMemo(
@@ -44,18 +46,20 @@ function YearMonthMini(props: {
             <div key={week[0]} className="year-week-row">
               <span className="year-week-num">{weekNumber(week[0])}</span>
               {week.map((dateKey) => (
-                <span
+                <button
                   key={dateKey}
                   className={[
                     "year-day",
                     isInMonth(dateKey, monthKey) ? "" : "out",
                     dateKey === props.today ? "today" : "",
+                    dateKey === selectedDayKey ? "selected" : "",
                   ]
                     .filter(Boolean)
                     .join(" ")}
+                  onClick={() => openDay(dateKey)}
                 >
                   {Number(dateKey.slice(8, 10))}
-                </span>
+                </button>
               ))}
               <span className="year-week-total">
                 {quarters === 0 && inMonthKeys.every((k) => !props.dayTotals.has(k))

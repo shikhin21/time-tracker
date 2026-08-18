@@ -465,6 +465,15 @@ select:focus {
   border-radius: 4px;
 }
 
+.year-day:hover {
+  background: var(--project-accent-soft, var(--color-surface-sunken));
+}
+
+.year-day.selected {
+  outline: 2px solid var(--project-accent, var(--color-border-strong));
+  outline-offset: -1px;
+}
+
 .year-day.out {
   color: var(--color-text-muted);
   opacity: 0.5;

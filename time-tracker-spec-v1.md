@@ -150,17 +150,18 @@ Navigation hierarchy (drill down and back up the same chain):
 
 ```
 Year  --tap month-->  Month  --tap week-->  Week  --tap day-->  Day detail panel
-                        \--------------- tap day ------------->  Day detail panel
+  \                     \--------------- tap day ------------->  Day detail panel
+   \------------------------------------ tap day ------------->  Day detail panel
 ```
 
-The **day detail panel** (drawer / inline expander) is a **single shared component**, opened from either the month view or the week view. It is the only editable surface for entries.
+The **day detail panel** (drawer / inline expander) is a **single shared component**, opened by tapping a day in any view (year, month, or week). It is the only editable surface for entries.
 
 ### 7.1 Year view (read-only, tappable)
 - Calendar-style layout (like a Google Calendar yearly view): months laid out in a grid; within each month, weeks are rows of seven day cells; a **week-number column** on the left.
-- **Day cells are plain** (no heatmap, no per-day numbers required beyond the date). 
+- **Day cells are plain** (no heatmap, no per-day numbers required beyond the date), but **tappable**: tapping a day opens the shared **day detail panel** (§7.4) — same as from the month and week views.
 - **Weekly total at the right edge** of each week row (ledger style).
 - **Month total shown below** that month's weeks (near/under the weekly totals column).
-- The year view is **not editable**. Tapping a **month** drills into the month view.
+- The year grid itself is **not editable** (edits happen only through the day detail panel). Tapping a **month** drills into the month view.
 - Week-number column is shown (per the reference layout).
 - For straddling weeks in the year view, weekly totals follow the same month-contribution logic as elsewhere (see §8), consistent with the month view.
 
@@ -180,7 +181,7 @@ The **day detail panel** (drawer / inline expander) is a **single shared compone
   - **Year-boundary weeks** (Dec/Jan): include the **year** in the label when the week crosses a year boundary, so it is unambiguous (e.g. `Dec 2026 · Jan 2027`). Elsewhere the year is omitted as redundant.
 
 ### 7.4 Day detail panel (shared component)
-- Opened from month or week view by tapping a day.
+- Opened from the year, month, or week view by tapping a day.
 - Lists that day's entries for the current project; each entry shows hours and optional task.
 - Supports **add / edit / delete** entries, editing hours (enforced quarter-hour) and the optional free-text task.
 - Enforces the day's **≤ 24h** total (§5).
