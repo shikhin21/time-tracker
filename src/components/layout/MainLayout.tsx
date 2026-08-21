@@ -1,6 +1,6 @@
 import { DayDetailPanel } from "../day/DayDetailPanel";
 import { QuickAddPopover } from "../day/QuickAddPopover";
-import { ProjectSettingsPanel } from "../project/ProjectSettingsPanel";
+import { SettingsPanel } from "../project/SettingsPanel";
 import { MonthView } from "../views/MonthView";
 import { WeekView } from "../views/WeekView";
 import { YearView } from "../views/YearView";
@@ -24,7 +24,7 @@ export function MainLayout() {
         {selectedDayKey && <DayDetailPanel key={selectedDayKey} dayKey={selectedDayKey} />}
       </div>
       <QuickAddPopover />
-      {settingsOpen && <ProjectSettingsPanel />}
+      {settingsOpen && <SettingsPanel />}
     </div>
   );
 }

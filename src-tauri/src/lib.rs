@@ -15,6 +15,12 @@ pub fn run() {
             sql: include_str!("../migrations/002_logged_at.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 3,
+            description: "invoicing: clients, invoices, invoice_line_items",
+            sql: include_str!("../migrations/003_invoicing.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()

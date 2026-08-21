@@ -123,8 +123,8 @@ export function Header() {
     <header className="header">
       <button
         className="icon-btn settings-btn"
-        aria-label="Project settings"
-        title="Project settings"
+        aria-label="Settings"
+        title="Settings"
         onClick={openSettings}
       >
         <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
