@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import type { EntryRow } from "../../db/db";
 import { isWeekend, todayKey, weekDates, weekKeyFor, weekNumber } from "../../lib/dates";
@@ -19,6 +20,7 @@ function WeekDayCard(props: {
 }) {
   const openDay = useAppStore((s) => s.openDay);
   const selectedDayKey = useAppStore((s) => s.selectedDayKey);
+  const headRef = useRef<HTMLDivElement>(null);
   return (
     <button
       className={[
@@ -29,9 +31,13 @@ function WeekDayCard(props: {
       ]
         .filter(Boolean)
         .join(" ")}
-      onClick={(e) => openDay(props.dateKey, e.currentTarget.getBoundingClientRect())}
+      onClick={() =>
+        // anchor to the day label, not the full (often tall) card — otherwise
+        // the quick-add bubble has nowhere to open on a long empty column
+        openDay(props.dateKey, headRef.current!.getBoundingClientRect())
+      }
     >
-      <div className="weekday-card-head">
+      <div className="weekday-card-head" ref={headRef}>
         <span className="weekday-card-name">{formatDateKey(props.dateKey, "EEE")}</span>
         <span className="weekday-card-date">{formatDateKey(props.dateKey, "MMM d")}</span>
       </div>

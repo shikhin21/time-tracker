@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { addEntry } from "../../db/entriesRepo";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import { formatDateKey } from "../../lib/format";
@@ -8,7 +8,7 @@ import { EntryEditor } from "./EntryEditor";
 
 const WIDTH = 320;
 const EDGE = 8;
-const EST_HEIGHT = 190; // rough bubble height, for the above/below flip
+const EST_HEIGHT = 190; // first-paint guess, before we can measure the real height
 
 /** Quick-add bubble anchored to today's tapped cell — the same add-entry
  *  editor the day panel offers, one tap sooner. */
@@ -20,6 +20,13 @@ export function QuickAddPopover() {
   const dateKey = quickAdd?.dateKey ?? "";
   const { entries } = useEntriesRange(quickAdd && projectId ? projectId : null, dateKey, dateKey);
   const ref = useRef<HTMLDivElement>(null);
+  // measured after every render, so it tracks content that grows (e.g. a
+  // validation error appearing) instead of trusting the first-paint guess
+  const [height, setHeight] = useState(EST_HEIGHT);
+
+  useLayoutEffect(() => {
+    if (ref.current) setHeight(ref.current.offsetHeight);
+  });
 
   useEffect(() => {
     if (!quickAdd) return;
@@ -38,7 +45,23 @@ export function QuickAddPopover() {
 
   const { anchor } = quickAdd;
   const anchorCenterX = anchor.left + anchor.width / 2;
-  const below = anchor.bottom + EST_HEIGHT + EDGE < window.innerHeight;
+
+  // pick whichever side actually has more room, using the real measured
+  // height — not just "does it fit below" — so a short-on-both-sides anchor
+  // (e.g. a full-height week-day column) doesn't default to an overflowing
+  // "above" placement
+  const spaceBelow = window.innerHeight - anchor.bottom - EDGE;
+  const spaceAbove = anchor.top - EDGE;
+  const below = spaceBelow >= height || spaceBelow >= spaceAbove;
+
+  // clamp fully inside the viewport even if neither side has enough room
+  let top = below ? anchor.bottom + 10 : anchor.top - 10 - height;
+  top = Math.min(Math.max(top, EDGE), window.innerHeight - EDGE - height);
+
+  // last-resort safety net: if the chosen side is still too tight, cap the
+  // bubble's height and let its content scroll instead of clipping off-screen
+  const maxHeight = Math.max(120, below ? spaceBelow : spaceAbove);
+
   const left = Math.min(
     Math.max(anchorCenterX, EDGE + WIDTH / 2),
     window.innerWidth - EDGE - WIDTH / 2,
@@ -57,8 +80,10 @@ export function QuickAddPopover() {
       style={{
         width: WIDTH,
         left,
-        top: below ? anchor.bottom + 10 : anchor.top - 10,
-        transform: below ? "translateX(-50%)" : "translate(-50%, -100%)",
+        top,
+        maxHeight,
+        overflowY: "auto",
+        transform: "translateX(-50%)",
       }}
     >
       <span className="quick-add-arrow" style={{ left: arrowLeft }} />
