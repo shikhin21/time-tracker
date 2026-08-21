@@ -2,11 +2,14 @@ import { useEffect } from "react";
 import { MainLayout } from "./components/layout/MainLayout";
 import { OnboardingCreateProject } from "./components/project/OnboardingCreateProject";
 import { useAppStore } from "./store/appStore";
+import { useSystemTheme } from "./theme/useSystemTheme";
 
 export default function App() {
   const status = useAppStore((s) => s.status);
   const error = useAppStore((s) => s.error);
   const init = useAppStore((s) => s.init);
+
+  useSystemTheme();
 
   useEffect(() => {
     void init();

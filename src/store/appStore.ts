@@ -1,4 +1,3 @@
-import { invoke } from "@tauri-apps/api/core";
 import { create } from "zustand";
 import type { ProjectRow } from "../db/db";
 import * as projectsRepo from "../db/projectsRepo";
@@ -54,6 +53,9 @@ interface AppState {
 
   init(): Promise<void>;
   setThemePreference(preference: ThemePreference): Promise<void>;
+  /** Repaint in `themeMode` without touching the saved preference — what the
+   *  system-theme listener calls when the OS appearance changes. */
+  setThemeMode(themeMode: ThemeMode): void;
   selectProject(id: string): Promise<void>;
   createProject(input: {
     name: string;
@@ -77,22 +79,6 @@ interface AppState {
   bumpData(): void;
 }
 
-/** Asks the OS directly via a native AppKit call (the `system_theme_mode`
- *  Rust command) instead of trusting the webview's own `prefers-color-scheme`
- *  or tao's cached window theme — both can get stuck at whatever they were
- *  when the webview was created and never reflect a live OS appearance
- *  change inside Tauri's packaged app. Falls back to matchMedia outside
- *  Tauri (e.g. a plain browser preview) or on non-macOS platforms. */
-async function resolveSystemThemeMode(): Promise<ThemeMode> {
-  try {
-    const theme = await invoke<ThemeMode>("system_theme_mode");
-    if (theme) return theme;
-  } catch {
-    // not running inside Tauri, or unsupported platform
-  }
-  return resolveThemeMode("system");
-}
-
 /** The db is the source of truth for the theme preference, but it isn't
  *  readable until migrations finish — too late for the first paint. Mirror the
  *  preference in localStorage so startup can honour an explicit light/dark
@@ -106,42 +92,6 @@ function readThemePreferenceHint(): ThemePreference {
 }
 
 const hintedPreference = readThemePreferenceHint();
-
-/** Repaint the app in `themeMode` (tokens + the current project's accent). */
-function applyThemeMode(themeMode: ThemeMode): void {
-  const { projects, currentProjectId } = useAppStore.getState();
-  applyTheme(themeMode);
-  const project = projects.find((p) => p.id === currentProjectId);
-  if (project) applyProjectAccent(project.color, themeMode);
-  useAppStore.setState({ themeMode });
-}
-
-/** Follow the OS while "system" is selected: ask AppKit once a second rather
- *  than relying on the webview's own prefers-color-scheme or tao's
- *  theme-changed event, neither of which fires dependably inside Tauri. The
- *  native read is cheap, and a repaint only happens when the answer changes.
- *
- *  The timer is owned at module scope rather than created inside `init`: it
- *  paints the shared `document`, so a second copy left running by StrictMode's
- *  double-mount — or by a hot-replaced module — would keep restyling the app
- *  from a store instance that nothing renders any more, overriding the theme
- *  the user actually picked. */
-let systemThemeTimer: ReturnType<typeof setInterval> | undefined;
-
-function watchSystemTheme(): void {
-  clearInterval(systemThemeTimer);
-  systemThemeTimer = setInterval(() => {
-    if (useAppStore.getState().themePreference !== "system") return;
-    void resolveSystemThemeMode().then((themeMode) => {
-      const state = useAppStore.getState();
-      if (state.themePreference === "system" && themeMode !== state.themeMode) {
-        applyThemeMode(themeMode);
-      }
-    });
-  }, 1000);
-}
-
-import.meta.hot?.dispose(() => clearInterval(systemThemeTimer));
 
 function shiftAnchor(view: ViewKind, anchorKey: string, delta: number): string {
   switch (view) {
@@ -173,8 +123,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     // wrong mode while the authoritative preference loads from the db
     applyTheme(get().themeMode);
 
-    watchSystemTheme();
-
     try {
       initLocale();
       await getDb(); // triggers migrations
@@ -182,11 +130,10 @@ export const useAppStore = create<AppState>((set, get) => ({
         settingsRepo.THEME_PREFERENCE,
       );
       const themePreference = (storedThemePreference as ThemePreference | null) ?? "system";
-      const themeMode =
-        themePreference === "system" ? await resolveSystemThemeMode() : themePreference;
+      const themeMode = resolveThemeMode(themePreference);
       applyTheme(themeMode);
-      // publish before the slower project queries: until this lands the poll
-      // above is still guarding against the placeholder preference
+      // publish before the slower project queries, so useSystemTheme starts
+      // listening on the real preference rather than the hint
       localStorage.setItem(THEME_PREFERENCE_HINT, themePreference);
       set({ themePreference, themeMode });
 
@@ -210,10 +157,17 @@ export const useAppStore = create<AppState>((set, get) => ({
     }
   },
 
+  setThemeMode(themeMode) {
+    applyTheme(themeMode);
+    const project = get().projects.find((p) => p.id === get().currentProjectId);
+    if (project) applyProjectAccent(project.color, themeMode);
+    set({ themeMode });
+  },
+
   async setThemePreference(preference) {
     set({ themePreference: preference });
     localStorage.setItem(THEME_PREFERENCE_HINT, preference);
-    applyThemeMode(preference === "system" ? await resolveSystemThemeMode() : preference);
+    get().setThemeMode(resolveThemeMode(preference));
     await settingsRepo.setSetting(settingsRepo.THEME_PREFERENCE, preference);
   },
 
