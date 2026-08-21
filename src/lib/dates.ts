@@ -1,4 +1,4 @@
-import { addDays, addMonths, addWeeks, startOfWeek, getWeek } from "date-fns";
+import { addDays, addMonths, addWeeks, endOfMonth, startOfWeek, getWeek } from "date-fns";
 import type { Locale } from "date-fns";
 import { enUS } from "date-fns/locale";
 import * as allLocales from "date-fns/locale";
@@ -88,6 +88,11 @@ export function weekKeyFor(dateKey: string, locale: Locale = activeLocale): stri
 
 export function weekNumber(dateKey: string, locale: Locale = activeLocale): number {
   return getWeek(parseDateKey(dateKey), { locale });
+}
+
+/** Last calendar day of a month: "2026-07" -> "2026-07-31". */
+export function monthEndKey(monthKey: string): string {
+  return toDateKey(endOfMonth(parseDateKey(`${monthKey}-01`)));
 }
 
 /** The 7 date keys of the week starting at `weekKey`. */

@@ -38,8 +38,26 @@ function roundCents(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
+/** Invoices print dates as mm-dd-yyyy, matching the sample — unlike the rest
+ *  of the app, which shows locale-formatted dates. */
+export function formatInvoiceDate(dateKey: string): string {
+  const [y, m, d] = dateKey.split("-");
+  return `${m}-${d}-${y}`;
+}
+
+/** "3360.00" — two decimals, no thousands separator, as in the sample. The
+ *  "$" is added by whichever cell prints it. */
+export function formatAmount(amount: number): string {
+  return amount.toFixed(2);
+}
+
+/** Hours print without trailing zeros: 64, 63.5, 3.25. */
+export function formatInvoiceHours(hours: number): string {
+  return String(Number(hours.toFixed(2)));
+}
+
 export function describePeriod(periodStart: string, periodEnd: string): string {
-  return `For services rendered from ${periodStart} to ${periodEnd}`;
+  return `For services rendered from ${formatInvoiceDate(periodStart)} to ${formatInvoiceDate(periodEnd)}`;
 }
 
 /** Hours per day, in hours (not quarters), for days inside the period. */

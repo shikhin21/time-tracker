@@ -567,6 +567,113 @@ textarea:focus {
   color: var(--color-text-muted);
 }
 
+/* ---------- invoicing ---------- */
+
+.month-invoice-cell {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-left: 12px;
+}
+
+.invoice-generator {
+  width: 720px;
+  max-width: calc(100vw - 120px);
+}
+
+.invoice-warning {
+  border: 1px solid var(--color-border-strong);
+  border-left: 3px solid var(--color-danger);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-warning strong {
+  color: var(--color-text-primary);
+}
+
+.invoice-warning .btn {
+  align-self: flex-start;
+}
+
+.invoice-fields {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.invoice-saved {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  margin-top: 10px;
+  word-break: break-all;
+}
+
+/* The preview sheet mirrors the PDF: Arial (as in the sample), black on white
+ * regardless of app theme, since that's what prints. */
+.invoice-sheet {
+  background: #ffffff;
+  color: #000000;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  font-weight: 700;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 18px;
+  margin-top: 4px;
+  overflow-x: auto;
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.invoice-table th,
+.invoice-table td {
+  border: 1px solid #000000;
+  padding: 4px 5px;
+  text-align: left;
+  vertical-align: top;
+  font-weight: 700;
+  word-wrap: break-word;
+}
+
+.invoice-table .right {
+  text-align: right;
+}
+
+.invoice-table thead th {
+  background: #d9e2f3;
+}
+
+.invoice-name {
+  font-size: 12pt;
+}
+
+.invoice-bill-to {
+  margin: 12px 0;
+}
+
+.invoice-bill-to-body {
+  font-weight: 400;
+}
+
+.invoice-totals {
+  margin-top: 12px;
+}
+
+.invoice-empty {
+  color: #555555;
+  font-weight: 400;
+}
+
 /* ---------- year view ---------- */
 
 .year-grid {

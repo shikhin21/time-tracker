@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { computeInvoice, nextInvoiceNumber } from "./invoice";
+import {
+  computeInvoice,
+  formatInvoiceDate,
+  formatInvoiceHours,
+  nextInvoiceNumber,
+} from "./invoice";
 import type { RateLike } from "./rates";
 
 const rate = (id: string, effectiveDate: string, value: number): RateLike => ({
@@ -55,8 +60,8 @@ describe("computeInvoice: rate-period grouping", () => {
       "2026-07-31",
     );
     expect(result.lines.map((l) => l.description)).toEqual([
-      "For services rendered from 2026-07-03 to 2026-07-03",
-      "For services rendered from 2026-07-20 to 2026-07-20",
+      "For services rendered from 07-03-2026 to 07-03-2026",
+      "For services rendered from 07-20-2026 to 07-20-2026",
     ]);
   });
 
@@ -153,5 +158,18 @@ describe("nextInvoiceNumber", () => {
   it("ignores non-numeric numbers rather than throwing", () => {
     expect(nextInvoiceNumber(["036", "DRAFT"])).toBe("037");
     expect(nextInvoiceNumber(["DRAFT"])).toBeNull();
+  });
+});
+
+describe("invoice formatting", () => {
+  it("prints dates as mm-dd-yyyy, matching the sample", () => {
+    expect(formatInvoiceDate("2026-07-01")).toBe("07-01-2026");
+    expect(formatInvoiceDate("2026-12-31")).toBe("12-31-2026");
+  });
+
+  it("prints hours without trailing zeros", () => {
+    expect(formatInvoiceHours(64)).toBe("64");
+    expect(formatInvoiceHours(63.5)).toBe("63.5");
+    expect(formatInvoiceHours(3.25)).toBe("3.25");
   });
 });

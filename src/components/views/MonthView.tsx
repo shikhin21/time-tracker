@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useEntriesRange } from "../../hooks/useEntriesRange";
 import {
   isInMonth,
@@ -13,6 +13,7 @@ import { formatDateKey, formatQuarters } from "../../lib/format";
 import { tasksForWeek, type TaskTotal } from "../../lib/tasks";
 import { sumForDays, sumForMonth } from "../../lib/totals";
 import { useAppStore } from "../../store/appStore";
+import { InvoiceGenerator } from "../../invoice/InvoiceGenerator";
 
 /** How many task rows fit in a week row before the rest collapse into
  *  "+N more". Kept in step with .week-tasks-cell's line-height in global.css:
@@ -79,6 +80,7 @@ export function MonthView() {
   const anchorKey = useAppStore((s) => s.anchorKey);
   const projectId = useAppStore((s) => s.currentProjectId);
   const drillToWeek = useAppStore((s) => s.drillToWeek);
+  const [invoicing, setInvoicing] = useState(false);
 
   const monthKey = monthKeyOf(anchorKey);
   const year = yearOf(anchorKey);
@@ -148,7 +150,16 @@ export function MonthView() {
         <span className="week-total-cell">
           {formatQuarters(sumForMonth(dayTotals, monthKey))}
         </span>
+        <span className="month-invoice-cell">
+          <button className="btn" onClick={() => setInvoicing(true)}>
+            Generate invoice
+          </button>
+        </span>
       </div>
+
+      {invoicing && (
+        <InvoiceGenerator monthKey={monthKey} onClose={() => setInvoicing(false)} />
+      )}
     </div>
   );
 }
