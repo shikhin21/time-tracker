@@ -3,11 +3,12 @@ import { projectColorByName, projectColors, semanticTokens } from "./tokens";
 const kebab = (s: string) => s.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
 
 export type ThemeMode = "light" | "dark";
+export type ThemePreference = "system" | ThemeMode;
 
-/** Resolve every token to a CSS custom property on :root. v1 calls this once
- *  with "light"; theme switching later is just calling it with "dark". */
+/** Resolve every token to a CSS custom property on :root. */
 export function applyTheme(mode: ThemeMode): void {
   const root = document.documentElement;
+  root.style.colorScheme = mode;
   for (const [name, pair] of Object.entries(semanticTokens)) {
     root.style.setProperty(`--color-${kebab(name)}`, pair[mode]);
   }
@@ -15,6 +16,15 @@ export function applyTheme(mode: ThemeMode): void {
     root.style.setProperty(`--project-${color.name}`, color.accent[mode]);
     root.style.setProperty(`--project-${color.name}-soft`, color.soft[mode]);
   }
+}
+
+export function systemThemeMode(): ThemeMode {
+  if (typeof window === "undefined" || !window.matchMedia) return "light";
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+export function resolveThemeMode(preference: ThemePreference): ThemeMode {
+  return preference === "system" ? systemThemeMode() : preference;
 }
 
 /** Hue the app to the current project's color. */

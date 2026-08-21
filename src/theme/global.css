@@ -94,6 +94,28 @@ select:focus {
   flex: 1;
 }
 
+.header-divider {
+  width: 0;
+  align-self: stretch;
+  margin: 4px 0;
+  border-left: 3px dotted var(--project-accent-soft, var(--color-border));
+}
+
+/* project switcher has a visible border box right up against the header's
+ * gap, unlike the breadcrumb's borderless buttons whose own padding reads
+ * as extra whitespace — add that padding back so the bar looks centered.
+ * Margins below are set so the total gap to each neighbor is 40px (double
+ * the original 20px), on both sides of both dividers. */
+.header-divider--left {
+  margin-left: 28px;
+  margin-right: 20px;
+}
+
+.header-divider--right {
+  margin-left: 20px;
+  margin-right: 28px;
+}
+
 .btn {
   padding: 6px 12px;
   border-radius: 6px;
@@ -149,6 +171,7 @@ select:focus {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  line-height: 1;
   color: var(--color-text-secondary);
 }
 
@@ -158,9 +181,14 @@ select:focus {
 }
 
 .settings-btn {
-  font-size: 20px;
-  width: 32px;
-  height: 32px;
+  width: 48px;
+  height: 48px;
+  color: var(--project-accent, var(--color-text-secondary));
+}
+
+.settings-btn svg {
+  width: 28px;
+  height: 28px;
 }
 
 /* ---------- project switcher ---------- */
@@ -180,17 +208,17 @@ select:focus {
   color: var(--color-text-muted);
 }
 
-.breadcrumb button {
+.nav-btn {
   padding: 4px 8px;
   border-radius: 6px;
   color: var(--color-text-secondary);
 }
 
-.breadcrumb button:hover {
+.nav-btn:hover {
   background: var(--color-surface-sunken);
 }
 
-.breadcrumb button.active {
+.nav-btn.active {
   color: var(--project-accent, var(--color-text-primary));
   font-weight: 600;
 }
@@ -199,6 +227,47 @@ select:focus {
   display: flex;
   align-items: center;
   gap: 6px;
+}
+
+/* ---------- theme toggle ---------- */
+
+.theme-toggle {
+  position: relative;
+  display: flex;
+}
+
+/* sized and accent-tinted to match the settings gear, the header's other icon
+ * button. Single class, like .settings-btn, so .icon-btn:hover still wins. */
+.theme-btn {
+  width: 48px;
+  height: 48px;
+  color: var(--project-accent, var(--color-text-secondary));
+}
+
+.theme-toggle svg {
+  width: 28px;
+  height: 28px;
+}
+
+.theme-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-strong);
+  border-radius: 10px;
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.16);
+  padding: 6px;
+  min-width: 120px;
+  z-index: 40;
+}
+
+.theme-menu .nav-btn {
+  width: 100%;
+  text-align: left;
 }
 
 .period-label {

@@ -18,3 +18,4 @@ export async function setSetting(key: string, value: string): Promise<void> {
 }
 
 export const LAST_SELECTED_PROJECT_ID = "lastSelectedProjectId";
+export const THEME_PREFERENCE = "themePreference";
