@@ -10,8 +10,41 @@ import {
   yearOf,
 } from "../../lib/dates";
 import { formatDateKey, formatQuarters } from "../../lib/format";
+import { tasksForWeek, type TaskTotal } from "../../lib/tasks";
 import { sumForDays, sumForMonth } from "../../lib/totals";
 import { useAppStore } from "../../store/appStore";
+
+/** How many task rows fit in a week row before the rest collapse into
+ *  "+N more". Kept in step with .week-tasks-cell's line-height in global.css:
+ *  this many lines plus the "+N more" line must fit the row's 64px. */
+const MAX_VISIBLE_TASKS = 3;
+
+function taskLabel(t: TaskTotal): string {
+  return `${t.task} — ${formatQuarters(t.quarters)}`;
+}
+
+function WeekTasksCell({ tasks }: { tasks: TaskTotal[] }) {
+  const overflowing = tasks.length > MAX_VISIBLE_TASKS;
+  // with an overflow line to place, one fewer task fits above it
+  const shown = overflowing ? tasks.slice(0, MAX_VISIBLE_TASKS - 1) : tasks;
+  const hidden = tasks.slice(shown.length);
+
+  return (
+    <div className="week-tasks-cell">
+      {shown.map((t) => (
+        <span key={t.task} className="week-task" title={taskLabel(t)}>
+          <span className="week-task-name">{t.task}</span>
+          <span className="week-task-hours">{formatQuarters(t.quarters)}</span>
+        </span>
+      ))}
+      {hidden.length > 0 && (
+        <span className="week-task more" title={hidden.map(taskLabel).join("\n")}>
+          +{hidden.length} more
+        </span>
+      )}
+    </div>
+  );
+}
 
 function DayCell(props: {
   dateKey: string;
@@ -55,8 +88,15 @@ export function MonthView() {
   // Fetch the full visible grid so dimmed out-of-month cells still show totals
   const from = weeks[0][0];
   const to = weeks[weeks.length - 1][6];
-  const { dayTotals } = useEntriesRange(projectId, from, to);
+  const { entries, dayTotals } = useEntriesRange(projectId, from, to);
   const today = todayKey();
+
+  // the fetched range is exactly the visible grid, so every week's full
+  // Sun–Sat span is already loaded — no extra query for out-of-month days
+  const tasksByWeek = useMemo(
+    () => new Map(weeks.map((week) => [week[0], tasksForWeek(entries, week[0])])),
+    [entries, weeks],
+  );
 
   return (
     <div className="month-grid" role="grid" aria-label={formatDateKey(`${monthKey}-01`, "LLLL yyyy")}>
@@ -70,6 +110,7 @@ export function MonthView() {
           </span>
         ))}
         <span className="week-total-cell">Total</span>
+        <span className="week-tasks-cell">Tasks</span>
       </div>
 
       {weeks.map((week) => {
@@ -96,6 +137,7 @@ export function MonthView() {
             <span className="week-total-cell">
               {formatQuarters(sumForDays(dayTotals, inMonthKeys))}
             </span>
+            <WeekTasksCell tasks={tasksByWeek.get(weekKey) ?? []} />
           </div>
         );
       })}

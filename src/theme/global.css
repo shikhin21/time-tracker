@@ -361,13 +361,15 @@ select:focus {
   display: flex;
   flex-direction: column;
   gap: 3px;
-  max-width: 1000px;
+  /* the original 1000px calendar + the tasks column and its gap, so adding
+   * the column widened the grid rather than squeezing the day cells */
+  max-width: 1223px;
   margin: 0 auto;
 }
 
 .month-row {
   display: grid;
-  grid-template-columns: 44px repeat(7, 1fr) 76px;
+  grid-template-columns: 44px repeat(7, 1fr) 76px 220px;
   gap: 3px;
   align-items: stretch;
 }
@@ -484,6 +486,51 @@ select:focus {
 .month-total-row .week-total-cell {
   color: var(--color-text-primary);
   font-size: 15px;
+}
+
+/* ---------- month tasks column ---------- */
+
+/* Shares the week's grid row with its day cells, so the two are the same
+ * height by construction. It must never be the tallest thing in the row or it
+ * would stretch the calendar: hence the fixed line-height and the overflow
+ * clamp that MAX_VISIBLE_TASKS in MonthView.tsx is matched to. */
+.week-tasks-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 4px 4px 4px 12px;
+  font-size: 11px;
+  line-height: 14px;
+  color: var(--color-text-secondary);
+}
+
+.month-header-row .week-tasks-cell {
+  display: block;
+  padding: 4px 12px;
+  text-align: left;
+}
+
+.week-task {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.week-task-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.week-task-hours {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+.week-task.more {
+  color: var(--color-text-muted);
 }
 
 /* ---------- year view ---------- */
