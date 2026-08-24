@@ -75,11 +75,20 @@ export interface CreateInvoiceInput {
   lines: InvoiceLine[];
 }
 
+const LINE_COLUMNS = 10;
+
 /** Commits the snapshot. Called only on export (§7) — previewing must never
  *  reach here, or it would consume a number.
  *
- *  Header and lines are written in one transaction: a half-written invoice
- *  would both burn a number and print with missing lines. */
+ *  There is no transaction, because there can't be one: tauri-plugin-sql runs
+ *  every execute() on a connection taken from a pool, so BEGIN, the inserts and
+ *  COMMIT each land on a different connection — the inserts auto-commit and the
+ *  COMMIT fails with no transaction active.
+ *
+ *  Instead the write is two statements, each atomic in SQLite on its own: the
+ *  header, then every line in a single multi-row insert. If the lines fail, the
+ *  header is deleted, since an invoice with no lines would both burn a number
+ *  and print blank. */
 export async function createInvoice(input: CreateInvoiceInput): Promise<InvoiceRow> {
   const db = await getDb();
   const now = Date.now();
@@ -101,53 +110,63 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<InvoiceR
     updatedAt: now,
   };
 
-  await db.execute("BEGIN");
-  try {
-    await db.execute(
-      `INSERT INTO invoices (id, projectId, number, invoiceDate, periodStart, periodEnd,
-         subtotal, salesTax, total, payments, amountDue, fromSnapshot, clientSnapshot,
-         createdAt, updatedAt)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$14)`,
-      [
-        invoice.id,
-        invoice.projectId,
-        invoice.number,
-        invoice.invoiceDate,
-        invoice.periodStart,
-        invoice.periodEnd,
-        invoice.subtotal,
-        invoice.salesTax,
-        invoice.total,
-        invoice.payments,
-        invoice.amountDue,
-        invoice.fromSnapshot,
-        invoice.clientSnapshot,
-        now,
-      ],
-    );
-    for (const [i, line] of input.lines.entries()) {
+  await db.execute(
+    `INSERT INTO invoices (id, projectId, number, invoiceDate, periodStart, periodEnd,
+       subtotal, salesTax, total, payments, amountDue, fromSnapshot, clientSnapshot,
+       createdAt, updatedAt)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$14)`,
+    [
+      invoice.id,
+      invoice.projectId,
+      invoice.number,
+      invoice.invoiceDate,
+      invoice.periodStart,
+      invoice.periodEnd,
+      invoice.subtotal,
+      invoice.salesTax,
+      invoice.total,
+      invoice.payments,
+      invoice.amountDue,
+      invoice.fromSnapshot,
+      invoice.clientSnapshot,
+      now,
+    ],
+  );
+
+  if (input.lines.length > 0) {
+    const rows = input.lines
+      .map(
+        (_, i) =>
+          `(${Array.from(
+            { length: LINE_COLUMNS },
+            (_, column) => `$${i * LINE_COLUMNS + column + 1}`,
+          ).join(",")})`,
+      )
+      .join(",");
+    const values = input.lines.flatMap((line, i) => [
+      newId(),
+      invoice.id,
+      line.item,
+      line.description,
+      line.periodStart,
+      line.periodEnd,
+      line.hours,
+      line.rate,
+      line.amount,
+      i,
+    ]);
+    try {
       await db.execute(
         `INSERT INTO invoice_line_items (id, invoiceId, item, description, periodStart,
            periodEnd, hours, rate, amount, sortOrder)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
-        [
-          newId(),
-          invoice.id,
-          line.item,
-          line.description,
-          line.periodStart,
-          line.periodEnd,
-          line.hours,
-          line.rate,
-          line.amount,
-          i,
-        ],
+         VALUES ${rows}`,
+        values,
       );
+    } catch (e) {
+      // don't leave a numbered invoice that would print with no lines
+      await db.execute("DELETE FROM invoices WHERE id = $1", [invoice.id]).catch(() => {});
+      throw e;
     }
-    await db.execute("COMMIT");
-  } catch (e) {
-    await db.execute("ROLLBACK");
-    throw e;
   }
   return invoice;
 }
