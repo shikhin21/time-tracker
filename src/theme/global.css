@@ -730,6 +730,9 @@ input[aria-invalid="true"] {
   margin: 24px 0;
 }
 
+/* in both party blocks only the name (or label) carries weight; the address
+ * beneath it prints regular */
+.invoice-from-body,
 .invoice-bill-to-body {
   font-weight: 400;
 }

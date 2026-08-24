@@ -20,10 +20,12 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
           <tr>
             <td>
               <div className="invoice-name">{doc.from.name}</div>
-              {addressLinesOf(doc.from).map((line, i) => (
-                <div key={i}>{line}</div>
-              ))}
-              {doc.from.phone ? <div>{doc.from.phone}</div> : null}
+              <div className="invoice-from-body">
+                {addressLinesOf(doc.from).map((line, i) => (
+                  <div key={i}>{line}</div>
+                ))}
+                {doc.from.phone ? <div>{doc.from.phone}</div> : null}
+              </div>
             </td>
             <td className="right">
               <div>Invoice #: {doc.number}</div>

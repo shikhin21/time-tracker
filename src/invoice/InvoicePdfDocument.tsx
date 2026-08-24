@@ -53,9 +53,11 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
             <View style={[styles.cell, { width: headerW[0] }]}>
               <Text style={styles.name}>{doc.from.name}</Text>
               {addressLinesOf(doc.from).map((line, i) => (
-                <Text key={i}>{line}</Text>
+                <Text key={i} style={styles.regular}>
+                  {line}
+                </Text>
               ))}
-              {doc.from.phone ? <Text>{doc.from.phone}</Text> : null}
+              {doc.from.phone ? <Text style={styles.regular}>{doc.from.phone}</Text> : null}
             </View>
             <View style={[styles.cell, { width: headerW[1] }]}>
               <Text style={styles.right}>Invoice #: {doc.number}</Text>
