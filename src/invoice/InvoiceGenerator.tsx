@@ -143,9 +143,14 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
   };
 
   const unrated = loaded?.computation.unratedDates ?? [];
+  // an invoice with a blank from- or bill-to block is not a usable invoice
+  const missingParties = [
+    loaded && !loaded.from.name.trim() ? "your details" : null,
+    loaded && !loaded.client.name.trim() ? "the client" : null,
+  ].filter((v): v is string => v !== null);
 
   return (
-    <Modal title="Generate invoice" onClose={onClose}>
+    <Modal title="Generate invoice" onClose={onClose} wide>
       <div className="invoice-generator">
         {existing.length > 0 && (
           <div className="invoice-warning">
@@ -178,6 +183,17 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
             <div>
               Set a rate covering {unrated.length === 1 ? "that date" : "those dates"} in
               Settings, or export without those hours.
+            </div>
+          </div>
+        )}
+
+        {missingParties.length > 0 && (
+          <div className="invoice-warning">
+            <strong>Missing billing details</strong>
+            <div>
+              The invoice will print with {missingParties.join(" and ")} blank. Add{" "}
+              {missingParties.length > 1 ? "them" : "that"} in Settings — your details under
+              General, the client under the project’s tab.
             </div>
           </div>
         )}

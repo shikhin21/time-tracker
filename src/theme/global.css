@@ -303,6 +303,12 @@ textarea:focus {
   padding: 20px;
 }
 
+/* wide enough to show the invoice preview at its true 8.5in page width
+ * (816px at 96dpi) plus the sheet's and modal's padding */
+.modal-wide {
+  width: 940px;
+}
+
 .modal h2 {
   font-size: 16px;
   margin-bottom: 14px;
@@ -577,8 +583,7 @@ textarea:focus {
 }
 
 .invoice-generator {
-  width: 720px;
-  max-width: calc(100vw - 120px);
+  width: 100%;
 }
 
 .invoice-warning {
@@ -617,6 +622,10 @@ textarea:focus {
 /* The preview sheet mirrors the PDF: Arial (as in the sample), black on white
  * regardless of app theme, since that's what prints. */
 .invoice-sheet {
+  /* the real page width, so the preview's proportions are the PDF's */
+  width: 816px;
+  max-width: 100%;
+  margin: 4px auto 0;
   background: #ffffff;
   color: #000000;
   font-family: Arial, Helvetica, sans-serif;
@@ -625,7 +634,6 @@ textarea:focus {
   border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 18px;
-  margin-top: 4px;
   overflow-x: auto;
 }
 

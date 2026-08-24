@@ -4,6 +4,8 @@ export function Modal(props: {
   title: string;
   onClose: () => void;
   children: ReactNode;
+  /** Sized to fit a full-width document preview rather than a form. */
+  wide?: boolean;
 }) {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -20,7 +22,11 @@ export function Modal(props: {
         if (e.target === e.currentTarget) props.onClose();
       }}
     >
-      <div className="modal" role="dialog" aria-label={props.title}>
+      <div
+        className={`modal${props.wide ? " modal-wide" : ""}`}
+        role="dialog"
+        aria-label={props.title}
+      >
         <h2>{props.title}</h2>
         {props.children}
       </div>
