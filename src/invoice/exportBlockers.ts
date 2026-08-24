@@ -33,6 +33,8 @@ export interface BlockerInput {
   /** Invoices that may touch this period, most recent first. Re-checked here
    *  rather than trusted, so the warning holds even if the query is widened. */
   priorInvoices: PriorInvoice[];
+  /** Every number this project has issued — numbers are unique per project. */
+  usedNumbers: string[];
 }
 
 /** How many calendar months a period touches: 1 when it stays inside one
@@ -52,8 +54,16 @@ export function exportBlockers(input: BlockerInput): ExportBlocker[] {
 
   const blockers: ExportBlocker[] = [];
 
-  if (input.number.trim() === "") {
+  const number = input.number.trim();
+  if (number === "") {
     blockers.push({ id: "number", message: "Enter an invoice number." });
+  } else if (input.usedNumbers.some((used) => used.trim() === number)) {
+    // the db enforces this too, so waiving it could only fail at the last step
+    blockers.push({
+      id: "number-taken",
+      message: `Invoice #${number} already exists for this project.`,
+      detail: "Numbers are unique per project.",
+    });
   }
 
   // reversed dates cover nothing at all, so there's no sensible invoice to

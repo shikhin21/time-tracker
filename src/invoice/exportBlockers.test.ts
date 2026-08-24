@@ -20,6 +20,7 @@ const clean: BlockerInput = {
   fromName: "FNU Shikhin",
   clientName: "Centre for Applied Ethics Ltd",
   priorInvoices: [],
+  usedNumbers: [],
 };
 
 const ids = (input: Partial<BlockerInput>) =>
@@ -40,6 +41,28 @@ describe("exportBlockers", () => {
     expect(blocker.id).toBe("number");
     expect(blocker.action).toBeUndefined();
     expect(canExport([blocker], new Set(["number"]))).toBe(false);
+  });
+
+  describe("a number already used", () => {
+    it("must be changed, not waived — the db enforces it too", () => {
+      const [blocker] = exportBlockers({ ...clean, number: "037", usedNumbers: ["036", "037"] });
+      expect(blocker.id).toBe("number-taken");
+      expect(blocker.message).toContain("#037");
+      expect(blocker.action).toBeUndefined();
+      expect(canExport([blocker], new Set(["number-taken"]))).toBe(false);
+    });
+
+    it("compares trimmed, so stray spaces don't sneak a duplicate through", () => {
+      expect(ids({ number: " 037 ", usedNumbers: ["037"] })).toContain("number-taken");
+    });
+
+    it("stays quiet for a number this project hasn't used", () => {
+      expect(ids({ number: "038", usedNumbers: ["036", "037"] })).toEqual([]);
+    });
+
+    it("doesn't also demand a number when the field is empty", () => {
+      expect(ids({ number: "", usedNumbers: ["036"] })).toEqual(["number"]);
+    });
   });
 
   describe("unfinished period", () => {

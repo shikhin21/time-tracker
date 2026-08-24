@@ -24,6 +24,7 @@ interface Loaded {
   client: InvoiceParty;
   computation: InvoiceComputation;
   suggestedNumber: string | null;
+  usedNumbers: string[];
   priorInvoices: InvoiceRow[];
 }
 
@@ -70,6 +71,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
           },
           computation: computeInvoice(entries, rates, periodStart, periodEnd),
           suggestedNumber: suggested,
+          usedNumbers: numbers,
           priorInvoices,
         });
         setNumber((current) => current || suggested || "");
@@ -118,6 +120,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
     fromName: loaded?.from.name ?? "",
     clientName: loaded?.client.name ?? "",
     priorInvoices: loaded?.priorInvoices ?? [],
+    usedNumbers: loaded?.usedNumbers ?? [],
   });
   const cleared = blockersCleared(blockers, overridden);
   const remaining = blockers.filter((b) => !b.action || !overridden.has(b.id)).length;
@@ -220,7 +223,9 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
               value={number}
               onChange={(e) => setNumber(e.target.value)}
               required
-              aria-invalid={number.trim() === ""}
+              aria-invalid={blockers.some(
+                (b) => b.id === "number" || b.id === "number-taken",
+              )}
             />
           </div>
           <div className="form-row">

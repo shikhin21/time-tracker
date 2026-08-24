@@ -1,4 +1,5 @@
 import { getDb, type InvoiceLineItemRow, type InvoiceRow } from "./db";
+import { ValidationError } from "../lib/errors";
 import { newId } from "../lib/id";
 import type { InvoiceLine } from "../lib/invoice";
 
@@ -110,28 +111,38 @@ export async function createInvoice(input: CreateInvoiceInput): Promise<InvoiceR
     updatedAt: now,
   };
 
-  await db.execute(
-    `INSERT INTO invoices (id, projectId, number, invoiceDate, periodStart, periodEnd,
-       subtotal, salesTax, total, payments, amountDue, fromSnapshot, clientSnapshot,
-       createdAt, updatedAt)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$14)`,
-    [
-      invoice.id,
-      invoice.projectId,
-      invoice.number,
-      invoice.invoiceDate,
-      invoice.periodStart,
-      invoice.periodEnd,
-      invoice.subtotal,
-      invoice.salesTax,
-      invoice.total,
-      invoice.payments,
-      invoice.amountDue,
-      invoice.fromSnapshot,
-      invoice.clientSnapshot,
-      now,
-    ],
-  );
+  try {
+    await db.execute(
+      `INSERT INTO invoices (id, projectId, number, invoiceDate, periodStart, periodEnd,
+         subtotal, salesTax, total, payments, amountDue, fromSnapshot, clientSnapshot,
+         createdAt, updatedAt)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$14)`,
+      [
+        invoice.id,
+        invoice.projectId,
+        invoice.number,
+        invoice.invoiceDate,
+        invoice.periodStart,
+        invoice.periodEnd,
+        invoice.subtotal,
+        invoice.salesTax,
+        invoice.total,
+        invoice.payments,
+        invoice.amountDue,
+        invoice.fromSnapshot,
+        invoice.clientSnapshot,
+        now,
+      ],
+    );
+  } catch (e) {
+    // the unique index is the backstop; the generator blocks this earlier
+    if (String(e).includes("UNIQUE") && String(e).includes("number")) {
+      throw new ValidationError(
+        `Invoice #${invoice.number} already exists for this project. Use a different number.`,
+      );
+    }
+    throw e;
+  }
 
   if (input.lines.length > 0) {
     const rows = input.lines

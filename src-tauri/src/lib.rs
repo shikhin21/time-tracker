@@ -21,6 +21,12 @@ pub fn run() {
             sql: include_str!("../migrations/003_invoicing.sql"),
             kind: MigrationKind::Up,
         },
+        Migration {
+            version: 4,
+            description: "one invoice number per project",
+            sql: include_str!("../migrations/004_unique_invoice_number.sql"),
+            kind: MigrationKind::Up,
+        },
     ];
 
     tauri::Builder::default()
