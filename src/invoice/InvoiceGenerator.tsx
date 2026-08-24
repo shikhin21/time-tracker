@@ -109,6 +109,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
     loaded: loaded !== null && doc !== null,
     number,
     today: todayKey(),
+    periodStart,
     periodEnd,
     lineCount: loaded?.computation.lines.length ?? 0,
     amountDue: loaded?.computation.amountDue ?? 0,

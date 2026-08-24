@@ -1,11 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { canExport, exportBlockers, type BlockerInput } from "./exportBlockers";
+import {
+  canExport,
+  exportBlockers,
+  monthsSpanned,
+  type BlockerInput,
+} from "./exportBlockers";
 
 /** A fully valid invoice: no blockers. Each test spoils one thing. */
 const clean: BlockerInput = {
   loaded: true,
   number: "037",
   today: "2026-09-02",
+  periodStart: "2026-08-01",
   periodEnd: "2026-08-31",
   lineCount: 1,
   amountDue: 1207.5,
@@ -47,6 +53,63 @@ describe("exportBlockers", () => {
 
     it("stays quiet once the period has passed", () => {
       expect(ids({ today: "2026-09-01" })).not.toContain("period-open");
+    });
+  });
+
+  describe("period spanning months", () => {
+    it("stays quiet for a period inside one month", () => {
+      expect(ids({ periodStart: "2026-08-05", periodEnd: "2026-08-20" })).not.toContain(
+        "period-multi-month",
+      );
+    });
+
+    it("warns, waivably, when the period crosses a month boundary", () => {
+      const [blocker] = exportBlockers({
+        ...clean,
+        periodStart: "2026-07-15",
+        periodEnd: "2026-08-14",
+      });
+      expect(blocker.id).toBe("period-multi-month");
+      expect(blocker.message).toContain("covers 2 months");
+      expect(blocker.message).toContain("07-15-2026 to 08-14-2026");
+      expect(blocker.action).toBeDefined();
+    });
+
+    it("counts every month touched, not just the endpoints", () => {
+      const [blocker] = exportBlockers({
+        ...clean,
+        periodStart: "2026-07-31",
+        periodEnd: "2026-09-01",
+      });
+      expect(blocker.message).toContain("covers 3 months");
+    });
+
+    it("counts across a year boundary", () => {
+      expect(monthsSpanned("2026-12-01", "2027-01-31")).toBe(2);
+      expect(monthsSpanned("2026-11-01", "2027-02-28")).toBe(4);
+    });
+
+    it("treats a single day as one month", () => {
+      expect(monthsSpanned("2026-08-14", "2026-08-14")).toBe(1);
+    });
+  });
+
+  describe("reversed period", () => {
+    it("must be fixed, not waived — reversed dates cover nothing", () => {
+      const [blocker] = exportBlockers({
+        ...clean,
+        periodStart: "2026-08-31",
+        periodEnd: "2026-08-01",
+      });
+      expect(blocker.id).toBe("period-reversed");
+      expect(blocker.action).toBeUndefined();
+      expect(canExport([blocker], new Set(["period-reversed"]))).toBe(false);
+    });
+
+    it("doesn't also claim the period spans months", () => {
+      expect(ids({ periodStart: "2026-09-30", periodEnd: "2026-08-01" })).not.toContain(
+        "period-multi-month",
+      );
     });
   });
 

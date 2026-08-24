@@ -22,6 +22,7 @@ export interface BlockerInput {
   number: string;
   /** Local today, as a date key — passed in so this stays pure. */
   today: string;
+  periodStart: string;
   periodEnd: string;
   lineCount: number;
   amountDue: number;
@@ -31,6 +32,14 @@ export interface BlockerInput {
   clientName: string;
   /** Invoices already covering this exact period, most recent first. */
   existing: PriorInvoice[];
+}
+
+/** How many calendar months a period touches: 1 when it stays inside one
+ *  month, 0 or less when the dates are reversed. */
+export function monthsSpanned(periodStart: string, periodEnd: string): number {
+  const [startYear, startMonth] = periodStart.split("-").map(Number);
+  const [endYear, endMonth] = periodEnd.split("-").map(Number);
+  return (endYear - startYear) * 12 + (endMonth - startMonth) + 1;
 }
 
 /** Everything standing between the user and a correct invoice, in the order
@@ -44,6 +53,15 @@ export function exportBlockers(input: BlockerInput): ExportBlocker[] {
 
   if (input.number.trim() === "") {
     blockers.push({ id: "number", message: "Enter an invoice number." });
+  }
+
+  // reversed dates cover nothing at all, so there's no sensible invoice to
+  // waive your way to — this one has to be corrected
+  if (input.periodEnd < input.periodStart) {
+    blockers.push({
+      id: "period-reversed",
+      message: `The billing period ends before it starts — ${formatInvoiceDate(input.periodStart)} to ${formatInvoiceDate(input.periodEnd)}.`,
+    });
   }
 
   const prior = input.existing[0];
@@ -63,6 +81,17 @@ export function exportBlockers(input: BlockerInput): ExportBlocker[] {
       message: `The billing period hasn’t ended yet — it runs to ${formatInvoiceDate(input.periodEnd)}.`,
       detail: "Hours logged between now and then won’t appear on this invoice.",
       action: "Invoice the period early",
+    });
+  }
+
+  const months = monthsSpanned(input.periodStart, input.periodEnd);
+  if (months > 1) {
+    blockers.push({
+      id: "period-multi-month",
+      message: `The billing period covers ${months} months — ${formatInvoiceDate(input.periodStart)} to ${formatInvoiceDate(input.periodEnd)}.`,
+      detail:
+        "Invoices normally cover a single month; check this doesn’t overlap one you’ve already issued.",
+      action: "Invoice the whole span",
     });
   }
 
