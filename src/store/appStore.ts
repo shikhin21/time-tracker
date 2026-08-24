@@ -41,7 +41,8 @@ interface AppState {
    *  year / month / week from it. */
   anchorKey: string;
   selectedDayKey: string | null;
-  /** Quick-add bubble state: set only when *today's* cell is tapped. */
+  /** Quick-add bubble state: armed by a single tap on today, or a double-tap
+   *  on any other day. */
   quickAdd: { dateKey: string; anchor: AnchorRect } | null;
   settingsOpen: boolean;
   /** App-level (not per-project) display theme. */
@@ -67,7 +68,9 @@ interface AppState {
   setView(view: ViewKind): void;
   drillToMonth(monthKey: string): void;
   drillToWeek(weekKey: string): void;
-  openDay(dateKey: string, anchor?: AnchorRect): void;
+  /** `withQuickAdd` overrides the today-only default, so a double-tap can arm
+   *  the bubble on any day. */
+  openDay(dateKey: string, anchor?: AnchorRect, withQuickAdd?: boolean): void;
   closeDay(): void;
   closeQuickAdd(): void;
   openSettings(): void;
@@ -211,13 +214,14 @@ export const useAppStore = create<AppState>((set, get) => ({
   drillToWeek(weekKey) {
     set({ view: "week", anchorKey: weekKey, quickAdd: null });
   },
-  openDay(dateKey, anchor) {
-    // tapping today's cell almost always means "log an entry now" — arm the
-    // quick-add bubble alongside the panel; other days just open the panel
-    const isToday = dateKey === todayKey();
+  openDay(dateKey, anchor, withQuickAdd) {
+    // a single tap on today almost always means "log an entry now", so the
+    // quick-add bubble is armed alongside the panel. Any other day needs the
+    // intent spelled out — a double-tap, which passes withQuickAdd.
+    const wantsQuickAdd = withQuickAdd ?? dateKey === todayKey();
     set({
       selectedDayKey: dateKey,
-      quickAdd: isToday && anchor ? { dateKey, anchor } : null,
+      quickAdd: wantsQuickAdd && anchor ? { dateKey, anchor } : null,
     });
   },
   closeDay() {

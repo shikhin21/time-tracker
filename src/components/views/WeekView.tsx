@@ -36,6 +36,9 @@ function WeekDayCard(props: {
         // the quick-add bubble has nowhere to open on a long empty column
         openDay(props.dateKey, headRef.current!.getBoundingClientRect())
       }
+      onDoubleClick={() =>
+        openDay(props.dateKey, headRef.current!.getBoundingClientRect(), true)
+      }
     >
       <div className="weekday-card-head" ref={headRef}>
         <span className="weekday-card-name">{formatDateKey(props.dateKey, "EEE")}</span>

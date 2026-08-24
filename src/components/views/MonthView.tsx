@@ -67,6 +67,9 @@ function DayCell(props: {
         .filter(Boolean)
         .join(" ")}
       onClick={(e) => openDay(props.dateKey, e.currentTarget.getBoundingClientRect())}
+      onDoubleClick={(e) =>
+        openDay(props.dateKey, e.currentTarget.getBoundingClientRect(), true)
+      }
     >
       <span className="day-num">{Number(props.dateKey.slice(8, 10))}</span>
       <span className="day-total">
