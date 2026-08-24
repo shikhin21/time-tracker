@@ -760,12 +760,14 @@ input[aria-invalid="true"] {
   margin-top: 28px;
 }
 
-/* the running amounts stay light; only the bottom line is emphasised */
-.invoice-total-value {
+/* the running amounts stay light; only the bottom line is emphasised. Written
+ * against `td` because the base `.invoice-table td` rule outranks a bare class
+ * and would otherwise keep every amount bold. */
+.invoice-table td.invoice-total-value {
   font-weight: 400;
 }
 
-.invoice-empty {
+.invoice-table td.invoice-empty {
   color: #555555;
   font-weight: 400;
 }
