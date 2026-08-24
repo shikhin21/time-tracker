@@ -97,14 +97,21 @@ export function pct(cols: readonly number[]): string[] {
   return cols.map((c) => `${((c / TOTAL_TWIPS) * 100).toFixed(4)}%`);
 }
 
+export interface TotalsRow {
+  label: string;
+  amount: number;
+  /** The bottom line — the only amount printed bold. */
+  emphasised: boolean;
+}
+
 /** The totals block, in print order. */
-export function totalsRows(doc: InvoiceDoc): { label: string; amount: number }[] {
+export function totalsRows(doc: InvoiceDoc): TotalsRow[] {
   return [
-    { label: "Subtotal", amount: doc.subtotal },
-    { label: "Sales Tax", amount: doc.salesTax },
-    { label: "Total", amount: doc.total },
-    { label: "Payments", amount: doc.payments },
-    { label: "Amount Due", amount: doc.amountDue },
+    { label: "Subtotal", amount: doc.subtotal, emphasised: false },
+    { label: "Sales Tax", amount: doc.salesTax, emphasised: false },
+    { label: "Total", amount: doc.total, emphasised: false },
+    { label: "Payments", amount: doc.payments, emphasised: false },
+    { label: "Amount Due", amount: doc.amountDue, emphasised: true },
   ];
 }
 

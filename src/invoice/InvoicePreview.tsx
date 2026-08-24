@@ -28,11 +28,13 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
               </div>
             </td>
             <td className="right">
-              <div>Invoice #: {doc.number}</div>
-              <div>Invoice Date: (mm-dd-yyyy) {formatInvoiceDate(doc.invoiceDate)}</div>
-              <div>
-                Invoice Period: (mm-dd-yyyy) {formatInvoiceDate(doc.periodStart)} to{" "}
-                {formatInvoiceDate(doc.periodEnd)}
+              <div className="invoice-meta-body">
+                <div>Invoice #: {doc.number}</div>
+                <div>Invoice Date (mm-dd-yyyy): {formatInvoiceDate(doc.invoiceDate)}</div>
+                <div>
+                  Invoice Period (mm-dd-yyyy): {formatInvoiceDate(doc.periodStart)} to{" "}
+                  {formatInvoiceDate(doc.periodEnd)}
+                </div>
               </div>
               <div>Amount Due: ${formatAmount(doc.amountDue)}</div>
             </td>
@@ -96,7 +98,9 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
             <tr key={row.label}>
               <td />
               <td className="right">{row.label}</td>
-              <td className="right">${formatAmount(row.amount)}</td>
+              <td className={`right${row.emphasised ? "" : " invoice-total-value"}`}>
+                ${formatAmount(row.amount)}
+              </td>
             </tr>
           ))}
         </tbody>

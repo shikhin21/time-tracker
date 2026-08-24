@@ -730,15 +730,22 @@ input[aria-invalid="true"] {
   margin: 24px 0;
 }
 
-/* in both party blocks only the name (or label) carries weight; the address
- * beneath it prints regular */
+/* the sheet sets bold as the default, so weight is spent deliberately: in the
+ * party blocks only the name (or label) keeps it, and in the invoice metadata
+ * only the amount due */
 .invoice-from-body,
-.invoice-bill-to-body {
+.invoice-bill-to-body,
+.invoice-meta-body {
   font-weight: 400;
 }
 
 .invoice-totals {
   margin-top: 28px;
+}
+
+/* the running amounts stay light; only the bottom line is emphasised */
+.invoice-total-value {
+  font-weight: 400;
 }
 
 .invoice-empty {

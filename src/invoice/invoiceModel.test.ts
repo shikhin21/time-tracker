@@ -62,6 +62,12 @@ describe("layout", () => {
       "Amount Due",
     ]);
   });
+
+  it("emphasises the bottom line only", () => {
+    expect(totalsRows(doc).filter((r) => r.emphasised).map((r) => r.label)).toEqual([
+      "Amount Due",
+    ]);
+  });
 });
 
 describe("docFromStoredInvoice", () => {

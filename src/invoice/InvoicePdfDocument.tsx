@@ -59,13 +59,14 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
               ))}
               {doc.from.phone ? <Text style={styles.regular}>{doc.from.phone}</Text> : null}
             </View>
+            {/* only the amount due carries weight here */}
             <View style={[styles.cell, { width: headerW[1] }]}>
-              <Text style={styles.right}>Invoice #: {doc.number}</Text>
-              <Text style={styles.right}>
-                Invoice Date: (mm-dd-yyyy) {formatInvoiceDate(doc.invoiceDate)}
+              <Text style={[styles.right, styles.regular]}>Invoice #: {doc.number}</Text>
+              <Text style={[styles.right, styles.regular]}>
+                Invoice Date (mm-dd-yyyy): {formatInvoiceDate(doc.invoiceDate)}
               </Text>
-              <Text style={styles.right}>
-                Invoice Period: (mm-dd-yyyy) {formatInvoiceDate(doc.periodStart)} to{" "}
+              <Text style={[styles.right, styles.regular]}>
+                Invoice Period (mm-dd-yyyy): {formatInvoiceDate(doc.periodStart)} to{" "}
                 {formatInvoiceDate(doc.periodEnd)}
               </Text>
               <Text style={styles.right}>Amount Due: ${formatAmount(doc.amountDue)}</Text>
@@ -136,7 +137,9 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
                 <Text>{row.label}</Text>
               </View>
               <View style={[styles.cell, { width: totalsW[2] }, styles.right]}>
-                <Text>${formatAmount(row.amount)}</Text>
+                <Text style={row.emphasised ? undefined : styles.regular}>
+                  ${formatAmount(row.amount)}
+                </Text>
               </View>
             </View>
           ))}
