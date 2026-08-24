@@ -26,18 +26,41 @@ const doc: InvoiceDoc = {
 };
 
 describe("invoiceFilename", () => {
-  it("leads with the number so a folder sorts by sequence", () => {
-    expect(invoiceFilename(doc)).toBe("Invoice-036-CentreForAppliedEthicsLtd-2026-07.pdf");
+  const forPeriod = (periodStart: string, periodEnd: string) =>
+    invoiceFilename({ ...doc, periodStart, periodEnd });
+
+  it("names a whole month by the month alone", () => {
+    expect(forPeriod("2026-07-01", "2026-07-31")).toBe("Invoice036 - Jul 2026.pdf");
   });
 
-  it("strips characters that don't belong in a filename", () => {
-    const awkward = { ...doc, client: { ...doc.client, name: "A/B: Ltd. & Co" } };
-    expect(invoiceFilename(awkward)).toBe("Invoice-036-ABLtdCo-2026-07.pdf");
+  it("spells out the dates for part of a month", () => {
+    expect(forPeriod("2026-07-01", "2026-07-10")).toBe(
+      "Invoice036 - 1 Jul 2026 to 10 Jul 2026.pdf",
+    );
   });
 
-  it("falls back to 'Client' when no client name is set", () => {
-    const nameless = { ...doc, client: { ...doc.client, name: "  " } };
-    expect(invoiceFilename(nameless)).toBe("Invoice-036-Client-2026-07.pdf");
+  it("spells out the dates for a span crossing months", () => {
+    expect(forPeriod("2026-07-15", "2026-08-14")).toBe(
+      "Invoice036 - 15 Jul 2026 to 14 Aug 2026.pdf",
+    );
+  });
+
+  it("recognises a whole month of any length", () => {
+    expect(forPeriod("2026-02-01", "2026-02-28")).toBe("Invoice036 - Feb 2026.pdf");
+    expect(forPeriod("2028-02-01", "2028-02-29")).toBe("Invoice036 - Feb 2028.pdf");
+    expect(forPeriod("2026-09-01", "2026-09-30")).toBe("Invoice036 - Sep 2026.pdf");
+  });
+
+  it("doesn't call a month whole when a day is missing from either end", () => {
+    expect(forPeriod("2026-07-02", "2026-07-31")).toContain(" to ");
+    expect(forPeriod("2026-07-01", "2026-07-30")).toContain(" to ");
+    expect(forPeriod("2026-02-01", "2026-02-29")).toContain(" to "); // 2026 isn't a leap year
+  });
+
+  it("drops leading zeros from the day, keeping them in the invoice number", () => {
+    expect(forPeriod("2026-07-05", "2026-07-09")).toBe(
+      "Invoice036 - 5 Jul 2026 to 9 Jul 2026.pdf",
+    );
   });
 });
 

@@ -1,4 +1,5 @@
 import type { BillerDetails, InvoiceLineItemRow, InvoiceRow } from "../db/db";
+import { monthEndKey } from "../lib/dates";
 import { formatAmount, formatInvoiceDate, type InvoiceLine } from "../lib/invoice";
 
 export interface InvoiceParty {
@@ -158,17 +159,45 @@ export function totalsRows(doc: InvoiceDoc): TotalsRow[] {
   ];
 }
 
-/** `Invoice-036-CentreForAppliedEthicsLtd-2026-07.pdf` — number first so a
- *  folder of invoices sorts by sequence. The client name is title-cased into
- *  one word, which stays readable where a raw strip would run words together
- *  in mixed case. */
+// Fixed English abbreviations rather than the active locale: an invoice is
+// already locale-independent (mm-dd-yyyy throughout), and a filename shouldn't
+// change shape with the app's language.
+const MONTH_ABBREVIATIONS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
+const yearOfKey = (dateKey: string) => dateKey.slice(0, 4);
+const monthAbbreviation = (dateKey: string) =>
+  MONTH_ABBREVIATIONS[Number(dateKey.slice(5, 7)) - 1];
+const dayOfKey = (dateKey: string) => Number(dateKey.slice(8, 10));
+
+/** Runs from a month's first day to its last, so the period can be named by
+ *  the month alone. */
+export function coversWholeMonth(periodStart: string, periodEnd: string): boolean {
+  return (
+    dayOfKey(periodStart) === 1 && periodEnd === monthEndKey(periodStart.slice(0, 7))
+  );
+}
+
+/** `Invoice036 - Jul 2026.pdf` for a full month, or
+ *  `Invoice036 - 1 Jul 2026 to 10 Jul 2026.pdf` for any other span — the
+ *  period is only spelled out when the month's name wouldn't describe it. */
 export function invoiceFilename(doc: InvoiceDoc): string {
-  const client =
-    doc.client.name
-      .split(/[^A-Za-z0-9]+/)
-      .filter(Boolean)
-      .map((word) => word[0].toUpperCase() + word.slice(1))
-      .join("") || "Client";
-  const period = doc.periodStart.slice(0, 7);
-  return `Invoice-${doc.number}-${client}-${period}.pdf`;
+  const day = (key: string) =>
+    `${dayOfKey(key)} ${monthAbbreviation(key)} ${yearOfKey(key)}`;
+  const period = coversWholeMonth(doc.periodStart, doc.periodEnd)
+    ? `${monthAbbreviation(doc.periodStart)} ${yearOfKey(doc.periodStart)}`
+    : `${day(doc.periodStart)} to ${day(doc.periodEnd)}`;
+  return `Invoice${doc.number.trim()} - ${period}.pdf`;
 }
