@@ -735,8 +735,25 @@ input[aria-invalid="true"] {
  * only the amount due */
 .invoice-from-body,
 .invoice-bill-to-body,
-.invoice-meta-body {
+.invoice-meta {
   font-weight: 400;
+}
+
+.invoice-sheet .strong {
+  font-weight: 700;
+}
+
+/* label column right-aligned against the gap, value column left-aligned after
+ * it, both sized to their content and pushed to the cell's right edge */
+.invoice-meta {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  justify-content: end;
+  column-gap: 6px;
+}
+
+.invoice-meta > div:nth-child(odd) {
+  text-align: right;
 }
 
 .invoice-totals {

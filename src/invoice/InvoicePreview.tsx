@@ -1,5 +1,13 @@
-import { formatAmount, formatInvoiceDate, formatInvoiceHours } from "../lib/invoice";
-import { addressLinesOf, LAYOUT, pct, totalsRows, type InvoiceDoc } from "./invoiceModel";
+import { Fragment } from "react";
+import { formatAmount, formatInvoiceHours } from "../lib/invoice";
+import {
+  addressLinesOf,
+  LAYOUT,
+  metaRows,
+  pct,
+  totalsRows,
+  type InvoiceDoc,
+} from "./invoiceModel";
 
 const headerW = pct(LAYOUT.headerCols);
 const itemW = pct(LAYOUT.itemCols);
@@ -27,16 +35,15 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
                 {doc.from.phone ? <div>{doc.from.phone}</div> : null}
               </div>
             </td>
-            <td className="right">
-              <div className="invoice-meta-body">
-                <div>Invoice #: {doc.number}</div>
-                <div>Invoice Date (mm-dd-yyyy): {formatInvoiceDate(doc.invoiceDate)}</div>
-                <div>
-                  Invoice Period (mm-dd-yyyy): {formatInvoiceDate(doc.periodStart)} to{" "}
-                  {formatInvoiceDate(doc.periodEnd)}
-                </div>
+            <td>
+              <div className="invoice-meta">
+                {metaRows(doc).map((row) => (
+                  <Fragment key={row.label}>
+                    <div className={row.emphasised ? "strong" : undefined}>{row.label}</div>
+                    <div className={row.emphasised ? "strong" : undefined}>{row.value}</div>
+                  </Fragment>
+                ))}
               </div>
-              <div>Amount Due: ${formatAmount(doc.amountDue)}</div>
             </td>
           </tr>
         </tbody>

@@ -1,5 +1,5 @@
 import type { BillerDetails, InvoiceLineItemRow, InvoiceRow } from "../db/db";
-import type { InvoiceLine } from "../lib/invoice";
+import { formatAmount, formatInvoiceDate, type InvoiceLine } from "../lib/invoice";
 
 export interface InvoiceParty {
   name: string;
@@ -88,13 +88,43 @@ export const LAYOUT = {
   /** Only the item table is ruled; the header and totals blocks are borderless.
    *  Vertical rhythm, in points/px — the two units coincide at 96dpi for the
    *  preview and are points in the PDF. */
-  space: { billTo: 24, beforeTotals: 28 },
+  space: { billTo: 24, beforeTotals: 28, metaGap: 6 },
 } as const;
 
 const TOTAL_TWIPS = 9360;
 
 export function pct(cols: readonly number[]): string[] {
   return cols.map((c) => `${((c / TOTAL_TWIPS) * 100).toFixed(4)}%`);
+}
+
+export interface LabelledRow {
+  label: string;
+  value: string;
+  /** Printed bold — the one figure meant to draw the eye. */
+  emphasised: boolean;
+}
+
+/** The invoice metadata block, top right. Defined here so the preview and the
+ *  PDF label and order it identically; each only decides how to lay it out. */
+export function metaRows(doc: InvoiceDoc): LabelledRow[] {
+  return [
+    { label: "Invoice #:", value: doc.number, emphasised: false },
+    {
+      label: "Invoice Date (mm-dd-yyyy):",
+      value: formatInvoiceDate(doc.invoiceDate),
+      emphasised: false,
+    },
+    {
+      label: "Invoice Period (mm-dd-yyyy):",
+      value: `${formatInvoiceDate(doc.periodStart)} to ${formatInvoiceDate(doc.periodEnd)}`,
+      emphasised: false,
+    },
+    {
+      label: "Amount Due:",
+      value: `$${formatAmount(doc.amountDue)}`,
+      emphasised: true,
+    },
+  ];
 }
 
 export interface TotalsRow {

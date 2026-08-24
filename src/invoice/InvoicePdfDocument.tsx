@@ -1,8 +1,9 @@
 import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
-import { formatAmount, formatInvoiceDate, formatInvoiceHours } from "../lib/invoice";
+import { formatAmount, formatInvoiceHours } from "../lib/invoice";
 import {
   addressLinesOf,
   LAYOUT,
+  metaRows,
   pct,
   totalsRows,
   type InvoiceDoc,
@@ -41,6 +42,10 @@ const styles = StyleSheet.create({
   billTo: { marginTop: LAYOUT.space.billTo, marginBottom: LAYOUT.space.billTo },
   billToLabel: { marginBottom: 2 },
   beforeTotals: { height: LAYOUT.space.beforeTotals },
+  /** Two content-sized columns pushed to the right edge: label right-aligned
+   *  against the gap, value left-aligned after it. */
+  metaColumns: { flexDirection: "row", justifyContent: "flex-end" },
+  metaLabel: { textAlign: "right", marginRight: LAYOUT.space.metaGap },
 });
 
 export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
@@ -59,17 +64,32 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
               ))}
               {doc.from.phone ? <Text style={styles.regular}>{doc.from.phone}</Text> : null}
             </View>
-            {/* only the amount due carries weight here */}
+            {/* labels and values are separate columns so their facing edges
+                line up; only the amount due carries weight here */}
             <View style={[styles.cell, { width: headerW[1] }]}>
-              <Text style={[styles.right, styles.regular]}>Invoice #: {doc.number}</Text>
-              <Text style={[styles.right, styles.regular]}>
-                Invoice Date (mm-dd-yyyy): {formatInvoiceDate(doc.invoiceDate)}
-              </Text>
-              <Text style={[styles.right, styles.regular]}>
-                Invoice Period (mm-dd-yyyy): {formatInvoiceDate(doc.periodStart)} to{" "}
-                {formatInvoiceDate(doc.periodEnd)}
-              </Text>
-              <Text style={styles.right}>Amount Due: ${formatAmount(doc.amountDue)}</Text>
+              <View style={styles.metaColumns}>
+                <View>
+                  {metaRows(doc).map((row) => (
+                    <Text
+                      key={row.label}
+                      style={
+                        row.emphasised
+                          ? styles.metaLabel
+                          : [styles.metaLabel, styles.regular]
+                      }
+                    >
+                      {row.label}
+                    </Text>
+                  ))}
+                </View>
+                <View>
+                  {metaRows(doc).map((row) => (
+                    <Text key={row.label} style={row.emphasised ? undefined : styles.regular}>
+                      {row.value}
+                    </Text>
+                  ))}
+                </View>
+              </View>
             </View>
           </View>
         </View>
