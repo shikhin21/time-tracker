@@ -49,7 +49,7 @@ describe("computeInvoice: rate-period grouping", () => {
     expect(result.subtotal).toBe(1200);
   });
 
-  it("orders lines chronologically and describes each by its worked span", () => {
+  it("orders lines chronologically, describing each by its rate-period", () => {
     const result = computeInvoice(
       [
         { date: "2026-07-20", hours: 1 },
@@ -59,10 +59,50 @@ describe("computeInvoice: rate-period grouping", () => {
       "2026-07-01",
       "2026-07-31",
     );
+    // the rate-period boundaries clamped to the month, not the two worked days
     expect(result.lines.map((l) => l.description)).toEqual([
-      "For services rendered from 07-03-2026 to 07-03-2026",
-      "For services rendered from 07-20-2026 to 07-20-2026",
+      "For services rendered from 07-01-2026 to 07-14-2026",
+      "For services rendered from 07-15-2026 to 07-31-2026",
     ]);
+  });
+
+  it("bills the whole period even when the last days carry no hours", () => {
+    const result = computeInvoice(
+      [
+        { date: "2026-07-01", hours: 8 },
+        { date: "2026-07-30", hours: 8 }, // nothing logged on the 31st
+      ],
+      [rate("r1", "2026-01-01", 52.5)],
+      "2026-07-01",
+      "2026-07-31",
+    );
+    expect(result.lines[0].description).toBe(
+      "For services rendered from 07-01-2026 to 07-31-2026",
+    );
+    expect(result.lines[0].periodEnd).toBe("2026-07-31");
+  });
+
+  it("reads the period's own dates when it isn't a whole month", () => {
+    const result = computeInvoice(
+      [{ date: "2026-07-20", hours: 4 }],
+      [rate("r1", "2026-01-01", 50)],
+      "2026-07-13",
+      "2026-07-26",
+    );
+    expect(result.lines[0].description).toBe(
+      "For services rendered from 07-13-2026 to 07-26-2026",
+    );
+  });
+
+  it("starts the line at the rate's effective date when it begins mid-period", () => {
+    const result = computeInvoice(
+      [{ date: "2026-07-20", hours: 4 }],
+      [rate("r1", "2026-07-15", 60)],
+      "2026-07-01",
+      "2026-07-31",
+    );
+    expect(result.lines[0].periodStart).toBe("2026-07-15");
+    expect(result.lines[0].periodEnd).toBe("2026-07-31");
   });
 
   it("ignores entries outside the billed period", () => {

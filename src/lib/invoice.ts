@@ -1,4 +1,6 @@
-import { resolveRate, type RateLike } from "./rates";
+import { addDays } from "date-fns";
+import { parseDateKey, toDateKey } from "./dates";
+import { sortRates, type RateLike } from "./rates";
 import { toQuarters } from "./validation";
 
 export const INVOICE_ITEM_LABEL = "Software services";
@@ -30,6 +32,13 @@ export interface InvoiceComputation {
    *  since there is no rate to multiply by. Excluded from `lines`. */
   unratedDates: string[];
   unratedHours: number;
+}
+
+const minKey = (a: string, b: string) => (a < b ? a : b);
+const maxKey = (a: string, b: string) => (a > b ? a : b);
+
+function dayBefore(dateKey: string): string {
+  return toDateKey(addDays(parseDateKey(dateKey), -1));
 }
 
 /** Money is rounded to cents at each line, then summed, so the printed lines
@@ -77,12 +86,17 @@ function hoursByDate(
 /** Group the billed period's worked days into contiguous rate-periods and
  *  build one summary line per period (§6).
  *
- *  Each day resolves to exactly one rate, so a day belongs wholly to one
- *  period — no partial-day splitting. A period runs from one rate's effective
- *  date to the day before the next takes effect, clamped to the billed period,
- *  so with no rate change the whole month collapses to a single line.
+ *  A line's date range is the rate-period itself — from the rate's effective
+ *  date to the day before the next rate takes over — clamped to the billed
+ *  period, so an unchanged rate collapses the whole month into one line reading
+ *  the period's own dates. It deliberately isn't the span of days that happen
+ *  to carry hours: a month worked through the 30th is still billed for the
+ *  month, and a client reading the line sees the period they're being billed
+ *  for rather than an inference about which days were idle.
  *
- *  Rate-periods with no hours logged produce no line. */
+ *  Each day resolves to exactly one rate, so a day belongs wholly to one
+ *  period — no partial-day splitting. Rate-periods with no hours logged produce
+ *  no line. */
 export function computeInvoice(
   entries: InvoiceEntryLike[],
   rates: RateLike[],
@@ -90,57 +104,42 @@ export function computeInvoice(
   periodEnd: string,
 ): InvoiceComputation {
   const byDate = hoursByDate(entries, periodStart, periodEnd);
+  const sorted = sortRates(rates);
 
-  // accumulate per resolved rate row, tracking the actual worked span so a
-  // line's description covers the days billed rather than the rate's full reach
-  interface Bucket {
-    rate: number;
-    hours: number;
-    firstDate: string;
-    lastDate: string;
-    effectiveDate: string;
-  }
-  const buckets = new Map<string, Bucket>();
+  // days preceding every rate can't be billed — there's no rate to multiply by
+  const firstEffective = sorted[0]?.effectiveDate;
   const unratedDates: string[] = [];
   let unratedHours = 0;
-
   for (const [date, hours] of [...byDate].sort()) {
-    const resolved = resolveRate(rates, date);
-    if (!resolved) {
-      if (hours > 0) {
-        unratedDates.push(date);
-        unratedHours += hours;
-      }
-      continue;
-    }
-    const found = buckets.get(resolved.id);
-    if (found) {
-      found.hours += hours;
-      if (date < found.firstDate) found.firstDate = date;
-      if (date > found.lastDate) found.lastDate = date;
-    } else {
-      buckets.set(resolved.id, {
-        rate: resolved.rate,
-        hours,
-        firstDate: date,
-        lastDate: date,
-        effectiveDate: resolved.effectiveDate,
-      });
+    if (hours > 0 && (firstEffective === undefined || date < firstEffective)) {
+      unratedDates.push(date);
+      unratedHours += hours;
     }
   }
 
-  const lines: InvoiceLine[] = [...buckets.values()]
-    .filter((b) => b.hours > 0)
-    .sort((a, b) => a.effectiveDate.localeCompare(b.effectiveDate))
-    .map((b) => ({
+  const lines: InvoiceLine[] = [];
+  for (const [i, rate] of sorted.entries()) {
+    const spanStart = maxKey(rate.effectiveDate, periodStart);
+    const next = sorted[i + 1];
+    const spanEnd = minKey(next ? dayBefore(next.effectiveDate) : periodEnd, periodEnd);
+    if (spanStart > spanEnd) continue; // this rate never applies inside the period
+
+    let hours = 0;
+    for (const [date, dayHours] of byDate) {
+      if (date >= spanStart && date <= spanEnd) hours += dayHours;
+    }
+    if (hours <= 0) continue;
+
+    lines.push({
       item: INVOICE_ITEM_LABEL,
-      description: describePeriod(b.firstDate, b.lastDate),
-      periodStart: b.firstDate,
-      periodEnd: b.lastDate,
-      hours: b.hours,
-      rate: b.rate,
-      amount: roundCents(b.hours * b.rate),
-    }));
+      description: describePeriod(spanStart, spanEnd),
+      periodStart: spanStart,
+      periodEnd: spanEnd,
+      hours,
+      rate: rate.rate,
+      amount: roundCents(hours * rate.rate),
+    });
+  }
 
   const subtotal = roundCents(lines.reduce((sum, l) => sum + l.amount, 0));
   const salesTax = 0; // v1: stored, no edit UI
