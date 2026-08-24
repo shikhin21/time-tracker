@@ -75,8 +75,7 @@ export function InvoiceHistory({ onClose }: { onClose: () => void }) {
       <Modal title={`Invoice #${opened.doc.number}`} onClose={onClose} wide>
         <div className="invoice-generator">
           <p className="form-hint">
-            Reprinted from what was recorded when this invoice was issued — not from your
-            current hours, rates or details.
+            Reproduction of what was recorded when this invoice was issued.
           </p>
           <InvoicePreview doc={opened.doc} />
           {error && <div className="form-error">{error}</div>}
