@@ -7,6 +7,7 @@ import {
   weekStraddlesYear,
   yearOf,
 } from "../../lib/dates";
+import { InvoiceHistory } from "../../invoice/InvoiceHistory";
 import { formatDateKey } from "../../lib/format";
 import { useAppStore, type ViewKind } from "../../store/appStore";
 import { ProjectCreateModal } from "../project/ProjectCreateModal";
@@ -119,6 +120,7 @@ function PeriodNav() {
 
 export function Header() {
   const openSettings = useAppStore((s) => s.openSettings);
+  const [historyOpen, setHistoryOpen] = useState(false);
   return (
     <header className="header">
       <button
@@ -136,8 +138,13 @@ export function Header() {
       <Breadcrumb />
       <div className="header-divider header-divider--right" />
       <PeriodNav />
+      <div className="header-divider header-divider--left" />
+      <button className="btn btn-ghost" onClick={() => setHistoryOpen(true)}>
+        Invoices
+      </button>
       <div className="spacer" />
       <ThemeToggle />
+      {historyOpen && <InvoiceHistory onClose={() => setHistoryOpen(false)} />}
     </header>
   );
 }

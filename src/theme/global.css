@@ -113,7 +113,11 @@ input[aria-invalid="true"] {
  * gap, unlike the breadcrumb's borderless buttons whose own padding reads
  * as extra whitespace — add that padding back so the bar looks centered.
  * Margins below are set so the total gap to each neighbor is 40px (double
- * the original 20px), on both sides of both dividers. */
+ * the original 20px), on both sides of both dividers.
+ *
+ * --left is used twice: after the project switcher, and after the period nav
+ * before Invoices. Both sit between an unpadded control and a padded one, so
+ * the same pair of margins is what each needs. */
 .header-divider--left {
   margin-left: 28px;
   margin-right: 20px;
@@ -585,6 +589,54 @@ input[aria-invalid="true"] {
 }
 
 /* ---------- invoicing ---------- */
+
+.invoice-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.invoice-list-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "number period amount"
+    "number date   amount";
+  column-gap: 10px;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 6px;
+  text-align: left;
+}
+
+.invoice-list-row:hover {
+  background: var(--color-surface-sunken);
+}
+
+.invoice-list-number {
+  grid-area: number;
+  font-weight: 600;
+  color: var(--project-accent, var(--color-text-primary));
+}
+
+.invoice-list-period {
+  grid-area: period;
+  font-variant-numeric: tabular-nums;
+}
+
+.invoice-list-date {
+  grid-area: date;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.invoice-list-amount {
+  grid-area: amount;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
 
 .month-invoice-cell {
   display: flex;
