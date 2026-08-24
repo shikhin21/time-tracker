@@ -97,6 +97,19 @@ export function pct(cols: readonly number[]): string[] {
   return cols.map((c) => `${((c / TOTAL_TWIPS) * 100).toFixed(4)}%`);
 }
 
+const DATE_TOKEN = /^\d{2}-\d{2}-\d{4}$/;
+
+/** Split text into runs, flagging mm-dd-yyyy dates. Both a browser and a PDF
+ *  layout engine treat a hyphen as a place they may break a line, which splits
+ *  "07-01-2026" across two lines; flagging the dates lets a renderer keep each
+ *  one whole. */
+export function splitOnDates(text: string): { text: string; isDate: boolean }[] {
+  return text
+    .split(/(\d{2}-\d{2}-\d{4})/)
+    .filter((part) => part !== "")
+    .map((part) => ({ text: part, isDate: DATE_TOKEN.test(part) }));
+}
+
 export interface LabelledRow {
   label: string;
   value: string;

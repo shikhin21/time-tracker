@@ -5,6 +5,7 @@ import {
   LAYOUT,
   metaRows,
   pct,
+  splitOnDates,
   totalsRows,
   type InvoiceDoc,
 } from "./invoiceModel";
@@ -78,7 +79,17 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
           {doc.lines.map((line, i) => (
             <tr key={i}>
               <td>{line.item}</td>
-              <td>{line.description}</td>
+              <td>
+                {splitOnDates(line.description).map((part, partIndex) =>
+                  part.isDate ? (
+                    <span key={partIndex} className="nowrap">
+                      {part.text}
+                    </span>
+                  ) : (
+                    <Fragment key={partIndex}>{part.text}</Fragment>
+                  ),
+                )}
+              </td>
               <td className="right">{formatInvoiceHours(line.hours)}</td>
               <td className="right">{formatAmount(line.rate)}</td>
               <td className="right">{formatAmount(line.amount)}</td>

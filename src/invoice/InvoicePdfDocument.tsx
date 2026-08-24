@@ -1,4 +1,4 @@
-import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Font, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { formatAmount, formatInvoiceHours } from "../lib/invoice";
 import {
   addressLinesOf,
@@ -14,6 +14,11 @@ import {
 // font file.
 const BOLD = "Helvetica-Bold";
 const REGULAR = "Helvetica";
+
+// react-pdf may break a word at its hyphens, which splits a date like
+// 07-01-2026 across two lines. Returning the word whole keeps dates intact;
+// nothing on an invoice is long enough to need hyphenating.
+Font.registerHyphenationCallback((word) => [word]);
 
 const headerW = pct(LAYOUT.headerCols);
 const itemW = pct(LAYOUT.itemCols);

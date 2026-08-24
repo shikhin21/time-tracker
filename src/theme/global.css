@@ -726,6 +726,11 @@ input[aria-invalid="true"] {
   font-size: 12pt;
 }
 
+/* a date must not wrap at its own hyphens, which would split 07-01-2026 */
+.invoice-sheet .nowrap {
+  white-space: nowrap;
+}
+
 .invoice-bill-to {
   margin: 24px 0;
 }

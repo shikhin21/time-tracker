@@ -5,6 +5,7 @@ import {
   docFromStoredInvoice,
   invoiceFilename,
   pct,
+  splitOnDates,
   totalsRows,
   type InvoiceDoc,
 } from "./invoiceModel";
@@ -37,6 +38,27 @@ describe("invoiceFilename", () => {
   it("falls back to 'Client' when no client name is set", () => {
     const nameless = { ...doc, client: { ...doc.client, name: "  " } };
     expect(invoiceFilename(nameless)).toBe("Invoice-036-Client-2026-07.pdf");
+  });
+});
+
+describe("splitOnDates", () => {
+  it("isolates each date so it can be kept whole", () => {
+    expect(splitOnDates("For services rendered from 07-01-2026 to 07-31-2026")).toEqual([
+      { text: "For services rendered from ", isDate: false },
+      { text: "07-01-2026", isDate: true },
+      { text: " to ", isDate: false },
+      { text: "07-31-2026", isDate: true },
+    ]);
+  });
+
+  it("leaves text with no dates as a single run", () => {
+    expect(splitOnDates("Software services")).toEqual([
+      { text: "Software services", isDate: false },
+    ]);
+  });
+
+  it("doesn't mistake other hyphenated numbers for dates", () => {
+    expect(splitOnDates("ref 12-34").every((p) => !p.isDate)).toBe(true);
   });
 });
 
