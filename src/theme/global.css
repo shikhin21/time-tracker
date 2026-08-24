@@ -51,6 +51,12 @@ textarea:focus {
   border-color: var(--project-accent, var(--color-border-strong));
 }
 
+/* a required field that's still empty — flagged even while focused, so it
+ * stays visibly the thing standing in the way */
+input[aria-invalid="true"] {
+  border-color: var(--color-danger);
+}
+
 /* ---------- app frame ---------- */
 
 .app {
@@ -325,6 +331,11 @@ textarea:focus {
   font-size: 12px;
   font-weight: 600;
   color: var(--color-text-secondary);
+}
+
+.required-mark {
+  color: var(--color-danger);
+  margin-left: 2px;
 }
 
 .form-hint {

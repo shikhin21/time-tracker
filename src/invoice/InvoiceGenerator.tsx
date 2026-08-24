@@ -208,11 +208,18 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
 
         <div className="invoice-fields">
           <div className="form-row">
-            <label htmlFor="invoice-number">Invoice #</label>
+            <label htmlFor="invoice-number">
+              Invoice #
+              <span className="required-mark" aria-hidden="true">
+                *
+              </span>
+            </label>
             <input
               id="invoice-number"
               value={number}
               onChange={(e) => setNumber(e.target.value)}
+              required
+              aria-invalid={number.trim() === ""}
             />
           </div>
           <div className="form-row">
