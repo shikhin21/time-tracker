@@ -11,37 +11,43 @@ import {
 // The sample is set in Arial. Helvetica is metrically identical and built into
 // every PDF reader, so using it keeps the layout while avoiding an embedded
 // font file.
+const BOLD = "Helvetica-Bold";
+const REGULAR = "Helvetica";
+
 const headerW = pct(LAYOUT.headerCols);
 const itemW = pct(LAYOUT.itemCols);
 const totalsW = pct(LAYOUT.totalsCols);
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica-Bold", // every run inside the sample's tables is bold
+    fontFamily: BOLD,
     fontSize: LAYOUT.fontSizePt,
     padding: `${LAYOUT.page.paddingIn}in`,
     color: "#000",
   },
-  table: { width: "100%", borderTop: `1 solid ${LAYOUT.border}`, borderLeft: `1 solid ${LAYOUT.border}` },
+  table: { width: "100%" },
+  /** Only the item table is ruled. Top/left live on the table and right/bottom
+   *  on each cell, so shared edges don't double up. */
+  ruled: { borderTop: `1 solid ${LAYOUT.border}`, borderLeft: `1 solid ${LAYOUT.border}` },
   row: { flexDirection: "row" },
-  cell: {
+  cell: { padding: 4 },
+  cellRuled: {
     borderRight: `1 solid ${LAYOUT.border}`,
     borderBottom: `1 solid ${LAYOUT.border}`,
-    padding: 4,
   },
   right: { textAlign: "right" },
   name: { fontSize: LAYOUT.nameFontSizePt },
-  billTo: { marginTop: 12, marginBottom: 12 },
+  regular: { fontFamily: REGULAR },
+  billTo: { marginTop: LAYOUT.space.billTo, marginBottom: LAYOUT.space.billTo },
   billToLabel: { marginBottom: 2 },
-  billToLine: { fontFamily: "Helvetica" }, // client block is not bold in the sample
-  spacer: { height: 12 },
+  beforeTotals: { height: LAYOUT.space.beforeTotals },
 });
 
 export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
   return (
     <Document title={`Invoice ${doc.number}`}>
       <Page size="LETTER" style={styles.page}>
-        {/* from-block | invoice meta */}
+        {/* from-block | invoice meta — borderless */}
         <View style={styles.table}>
           <View style={styles.row}>
             <View style={[styles.cell, { width: headerW[0] }]}>
@@ -67,16 +73,16 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
 
         <View style={styles.billTo}>
           <Text style={styles.billToLabel}>Bill To:</Text>
-          <Text style={styles.billToLine}>{doc.client.name}</Text>
+          <Text style={styles.regular}>{doc.client.name}</Text>
           {addressLinesOf(doc.client).map((line, i) => (
-            <Text key={i} style={styles.billToLine}>
+            <Text key={i} style={styles.regular}>
               {line}
             </Text>
           ))}
         </View>
 
-        {/* item table */}
-        <View style={styles.table}>
+        {/* item table — the only ruled block; header bold, rows regular */}
+        <View style={[styles.table, styles.ruled]}>
           <View style={styles.row}>
             {["Item", "Description", "Hours worked", "Hourly rate ($)", "Amount ($)"].map(
               (heading, i) => (
@@ -84,6 +90,7 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
                   key={heading}
                   style={[
                     styles.cell,
+                    styles.cellRuled,
                     { width: itemW[i], backgroundColor: LAYOUT.headerFill },
                     i >= 2 ? styles.right : {},
                   ]}
@@ -95,28 +102,28 @@ export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
           </View>
           {doc.lines.map((line, i) => (
             <View key={i} style={styles.row}>
-              <View style={[styles.cell, { width: itemW[0] }]}>
-                <Text>{line.item}</Text>
+              <View style={[styles.cell, styles.cellRuled, { width: itemW[0] }]}>
+                <Text style={styles.regular}>{line.item}</Text>
               </View>
-              <View style={[styles.cell, { width: itemW[1] }]}>
-                <Text>{line.description}</Text>
+              <View style={[styles.cell, styles.cellRuled, { width: itemW[1] }]}>
+                <Text style={styles.regular}>{line.description}</Text>
               </View>
-              <View style={[styles.cell, { width: itemW[2] }, styles.right]}>
-                <Text>{formatInvoiceHours(line.hours)}</Text>
+              <View style={[styles.cell, styles.cellRuled, { width: itemW[2] }, styles.right]}>
+                <Text style={styles.regular}>{formatInvoiceHours(line.hours)}</Text>
               </View>
-              <View style={[styles.cell, { width: itemW[3] }, styles.right]}>
-                <Text>{formatAmount(line.rate)}</Text>
+              <View style={[styles.cell, styles.cellRuled, { width: itemW[3] }, styles.right]}>
+                <Text style={styles.regular}>{formatAmount(line.rate)}</Text>
               </View>
-              <View style={[styles.cell, { width: itemW[4] }, styles.right]}>
-                <Text>{formatAmount(line.amount)}</Text>
+              <View style={[styles.cell, styles.cellRuled, { width: itemW[4] }, styles.right]}>
+                <Text style={styles.regular}>{formatAmount(line.amount)}</Text>
               </View>
             </View>
           ))}
         </View>
 
-        <View style={styles.spacer} />
+        <View style={styles.beforeTotals} />
 
-        {/* totals */}
+        {/* totals — borderless */}
         <View style={styles.table}>
           {totalsRows(doc).map((row) => (
             <View key={row.label} style={styles.row}>

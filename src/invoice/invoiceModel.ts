@@ -85,6 +85,10 @@ export const LAYOUT = {
   border: "#000000",
   fontSizePt: 10,
   nameFontSizePt: 12,
+  /** Only the item table is ruled; the header and totals blocks are borderless.
+   *  Vertical rhythm, in points/px — the two units coincide at 96dpi for the
+   *  preview and are points in the PDF. */
+  space: { billTo: 24, beforeTotals: 28 },
 } as const;
 
 const TOTAL_TWIPS = 9360;

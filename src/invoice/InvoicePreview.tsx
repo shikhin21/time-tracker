@@ -48,7 +48,7 @@ export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
         </div>
       </div>
 
-      <table className="invoice-table">
+      <table className="invoice-table invoice-items">
         <colgroup>
           {itemW.map((w, i) => (
             <col key={i} style={{ width: w }} />

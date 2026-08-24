@@ -9,13 +9,12 @@ import { userErrorMessage } from "../lib/errors";
 import {
   computeInvoice,
   formatAmount,
-  formatInvoiceDate,
-  formatInvoiceHours,
   nextInvoiceNumber,
   type InvoiceComputation,
 } from "../lib/invoice";
 import { useAppStore } from "../store/appStore";
 import { Modal } from "../components/shared/Modal";
+import { canExport as blockersCleared, exportBlockers } from "./exportBlockers";
 import { exportInvoicePdf } from "./exportInvoice";
 import { InvoicePreview } from "./InvoicePreview";
 import { billerToParty, type InvoiceDoc, type InvoiceParty } from "./invoiceModel";
@@ -40,7 +39,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
   const [invoiceDate, setInvoiceDate] = useState(todayKey());
   const [periodStart, setPeriodStart] = useState(defaultStart);
   const [periodEnd, setPeriodEnd] = useState(defaultEnd);
-  const [acknowledgedExisting, setAcknowledgedExisting] = useState(false);
+  const [overridden, setOverridden] = useState<ReadonlySet<string>>(new Set());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedTo, setSavedTo] = useState<string | null>(null);
@@ -74,6 +73,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
           existing,
         });
         setNumber((current) => current || suggested || "");
+        setOverridden(new Set());
       } catch (e) {
         if (!cancelled) setError(userErrorMessage(e, "Couldn't prepare the invoice."));
       }
@@ -104,10 +104,31 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
 
   if (!projectId) return null;
 
-  const existing = loaded?.existing ?? [];
-  const mustAcknowledge = existing.length > 0 && !acknowledgedExisting;
   const firstEver = loaded !== null && loaded.suggestedNumber === null;
-  const canExport = doc !== null && number.trim() !== "" && !mustAcknowledge && !busy;
+  const blockers = exportBlockers({
+    loaded: loaded !== null && doc !== null,
+    number,
+    today: todayKey(),
+    periodEnd,
+    lineCount: loaded?.computation.lines.length ?? 0,
+    amountDue: loaded?.computation.amountDue ?? 0,
+    unratedDates: loaded?.computation.unratedDates ?? [],
+    unratedHours: loaded?.computation.unratedHours ?? 0,
+    fromName: loaded?.from.name ?? "",
+    clientName: loaded?.client.name ?? "",
+    existing: loaded?.existing ?? [],
+  });
+  const cleared = blockersCleared(blockers, overridden);
+  const remaining = blockers.filter((b) => !b.action || !overridden.has(b.id)).length;
+
+  const toggleOverride = (id: string) => {
+    setOverridden((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   /** Export is the only thing that commits the snapshot and consumes the
    *  number — preview is free and repeatable (§7). */
@@ -142,59 +163,39 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
     }
   };
 
-  const unrated = loaded?.computation.unratedDates ?? [];
-  // an invoice with a blank from- or bill-to block is not a usable invoice
-  const missingParties = [
-    loaded && !loaded.from.name.trim() ? "your details" : null,
-    loaded && !loaded.client.name.trim() ? "the client" : null,
-  ].filter((v): v is string => v !== null);
-
   return (
     <Modal title="Generate invoice" onClose={onClose} wide>
       <div className="invoice-generator">
-        {existing.length > 0 && (
-          <div className="invoice-warning">
-            <strong>
-              Invoice #{existing[0].number} already covers{" "}
-              {formatInvoiceDate(existing[0].periodStart)} to{" "}
-              {formatInvoiceDate(existing[0].periodEnd)}
-            </strong>
-            <div>
-              Generated on {formatInvoiceDate(existing[0].invoiceDate)}. Regenerating issues a
-              new, superseding invoice with a new number — the earlier one stays in your
-              history untouched.
-            </div>
-            {!acknowledgedExisting && (
-              <button className="btn" onClick={() => setAcknowledgedExisting(true)}>
-                Regenerate anyway
-              </button>
-            )}
-          </div>
-        )}
-
-        {unrated.length > 0 && (
-          <div className="invoice-warning">
-            <strong>
-              {formatInvoiceHours(loaded?.computation.unratedHours ?? 0)} hours on{" "}
-              {unrated.length} {unrated.length === 1 ? "day" : "days"} can’t be billed — no rate
-              was in effect.
-            </strong>
-            <div>{unrated.map(formatInvoiceDate).join(", ")}</div>
-            <div>
-              Set a rate covering {unrated.length === 1 ? "that date" : "those dates"} in
-              Settings, or export without those hours.
-            </div>
-          </div>
-        )}
-
-        {missingParties.length > 0 && (
-          <div className="invoice-warning">
-            <strong>Missing billing details</strong>
-            <div>
-              The invoice will print with {missingParties.join(" and ")} blank. Add{" "}
-              {missingParties.length > 1 ? "them" : "that"} in Settings — your details under
-              General, the client under the project’s tab.
-            </div>
+        {blockers.length > 0 && (
+          <div className={`invoice-blockers${remaining === 0 ? " cleared" : ""}`}>
+            <strong>{remaining === 0 ? "Acknowledged — ready to export" : "Can’t export yet"}</strong>
+            <ul>
+              {blockers.map((blocker) =>
+                blocker.action ? (
+                  <li key={blocker.id}>
+                    <label>
+                      <input
+                        type="checkbox"
+                        checked={overridden.has(blocker.id)}
+                        onChange={() => toggleOverride(blocker.id)}
+                      />
+                      <span>
+                        <span className="blocker-message">{blocker.message}</span>
+                        {blocker.detail && (
+                          <span className="blocker-detail">{blocker.detail}</span>
+                        )}
+                        <span className="blocker-action">{blocker.action}</span>
+                      </span>
+                    </label>
+                  </li>
+                ) : (
+                  <li key={blocker.id} className="must-fix">
+                    <span className="blocker-message">{blocker.message}</span>
+                    {blocker.detail && <span className="blocker-detail">{blocker.detail}</span>}
+                  </li>
+                ),
+              )}
+            </ul>
           </div>
         )}
 
@@ -256,7 +257,11 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
           <button className="btn" onClick={onClose}>
             {savedTo ? "Done" : "Cancel"}
           </button>
-          <button className="btn btn-primary" disabled={!canExport} onClick={() => void onExport()}>
+          <button
+            className="btn btn-primary"
+            disabled={!cleared || busy}
+            onClick={() => void onExport()}
+          >
             {busy ? "Exporting…" : `Export PDF ($${formatAmount(doc?.amountDue ?? 0)})`}
           </button>
         </div>

@@ -586,24 +586,64 @@ textarea:focus {
   width: 100%;
 }
 
-.invoice-warning {
+/* Why Export is disabled. Each waivable reason carries the checkbox that
+ * waives it; reasons without one have to be fixed. */
+.invoice-blockers {
   border: 1px solid var(--color-border-strong);
   border-left: 3px solid var(--color-danger);
   border-radius: 6px;
   padding: 10px 12px;
   margin-bottom: 14px;
   font-size: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
 }
 
-.invoice-warning strong {
+.invoice-blockers.cleared {
+  border-left-color: var(--project-accent, var(--color-border-strong));
+}
+
+.invoice-blockers > strong {
+  display: block;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.invoice-blockers ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.invoice-blockers label {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.invoice-blockers input[type="checkbox"] {
+  margin-top: 2px;
+  flex: none;
+}
+
+.invoice-blockers li.must-fix {
+  padding-left: 22px;
+}
+
+.blocker-message {
+  display: block;
   color: var(--color-text-primary);
 }
 
-.invoice-warning .btn {
-  align-self: flex-start;
+.blocker-detail {
+  display: block;
+  color: var(--color-text-muted);
+}
+
+.blocker-action {
+  display: block;
+  color: var(--color-text-secondary);
+  font-weight: 600;
 }
 
 .invoice-fields {
@@ -645,7 +685,6 @@ textarea:focus {
 
 .invoice-table th,
 .invoice-table td {
-  border: 1px solid #000000;
   padding: 4px 5px;
   text-align: left;
   vertical-align: top;
@@ -657,8 +696,19 @@ textarea:focus {
   text-align: right;
 }
 
-.invoice-table thead th {
+/* the item table is the only ruled block — the header and totals blocks print
+ * borderless — and only its heading row is bold */
+.invoice-items th,
+.invoice-items td {
+  border: 1px solid #000000;
+}
+
+.invoice-items thead th {
   background: #d9e2f3;
+}
+
+.invoice-items tbody td {
+  font-weight: 400;
 }
 
 .invoice-name {
@@ -666,7 +716,7 @@ textarea:focus {
 }
 
 .invoice-bill-to {
-  margin: 12px 0;
+  margin: 24px 0;
 }
 
 .invoice-bill-to-body {
@@ -674,7 +724,7 @@ textarea:focus {
 }
 
 .invoice-totals {
-  margin-top: 12px;
+  margin-top: 28px;
 }
 
 .invoice-empty {
