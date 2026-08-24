@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { getBillerDetails, getClient } from "../db/clientsRepo";
 import { getEntriesInRange } from "../db/entriesRepo";
-import { createInvoice, getInvoiceNumbers, getInvoicesForPeriod } from "../db/invoicesRepo";
+import { createInvoice, getInvoiceNumbers, getOverlappingInvoices } from "../db/invoicesRepo";
 import { getRates } from "../db/ratesRepo";
 import type { InvoiceRow } from "../db/db";
 import { monthEndKey, todayKey } from "../lib/dates";
@@ -24,7 +24,7 @@ interface Loaded {
   client: InvoiceParty;
   computation: InvoiceComputation;
   suggestedNumber: string | null;
-  existing: InvoiceRow[];
+  priorInvoices: InvoiceRow[];
 }
 
 export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onClose: () => void }) {
@@ -52,13 +52,13 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
     setError(null);
     void (async () => {
       try {
-        const [entries, rates, client, from, numbers, existing] = await Promise.all([
+        const [entries, rates, client, from, numbers, priorInvoices] = await Promise.all([
           getEntriesInRange(projectId, periodStart, periodEnd),
           getRates(projectId),
           getClient(projectId),
           getBillerDetails(),
           getInvoiceNumbers(projectId),
-          getInvoicesForPeriod(projectId, periodStart, periodEnd),
+          getOverlappingInvoices(projectId, periodStart, periodEnd),
         ]);
         if (cancelled) return;
         const suggested = nextInvoiceNumber(numbers);
@@ -70,7 +70,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
           },
           computation: computeInvoice(entries, rates, periodStart, periodEnd),
           suggestedNumber: suggested,
-          existing,
+          priorInvoices,
         });
         setNumber((current) => current || suggested || "");
         setOverridden(new Set());
@@ -117,7 +117,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
     unratedHours: loaded?.computation.unratedHours ?? 0,
     fromName: loaded?.from.name ?? "",
     clientName: loaded?.client.name ?? "",
-    existing: loaded?.existing ?? [],
+    priorInvoices: loaded?.priorInvoices ?? [],
   });
   const cleared = blockersCleared(blockers, overridden);
   const remaining = blockers.filter((b) => !b.action || !overridden.has(b.id)).length;

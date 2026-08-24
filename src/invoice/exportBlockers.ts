@@ -30,8 +30,9 @@ export interface BlockerInput {
   unratedHours: number;
   fromName: string;
   clientName: string;
-  /** Invoices already covering this exact period, most recent first. */
-  existing: PriorInvoice[];
+  /** Invoices that may touch this period, most recent first. Re-checked here
+   *  rather than trusted, so the warning holds even if the query is widened. */
+  priorInvoices: PriorInvoice[];
 }
 
 /** How many calendar months a period touches: 1 when it stays inside one
@@ -64,13 +65,34 @@ export function exportBlockers(input: BlockerInput): ExportBlocker[] {
     });
   }
 
-  const prior = input.existing[0];
+  // an exact re-issue is a different situation from a partial overlap: the
+  // first supersedes a period you meant to bill, the second double-bills days
+  const sameSpan = (p: PriorInvoice) =>
+    p.periodStart === input.periodStart && p.periodEnd === input.periodEnd;
+  const touchesSpan = (p: PriorInvoice) =>
+    p.periodStart <= input.periodEnd && p.periodEnd >= input.periodStart;
+
+  const reissued = input.priorInvoices.filter(sameSpan);
+  const overlapping = input.priorInvoices.filter((p) => !sameSpan(p) && touchesSpan(p));
+
+  const prior = reissued[0];
   if (prior) {
     blockers.push({
       id: "already-invoiced",
       message: `Invoice #${prior.number} already covers ${formatInvoiceDate(prior.periodStart)} to ${formatInvoiceDate(prior.periodEnd)}, generated ${formatInvoiceDate(prior.invoiceDate)}.`,
       detail: "A new invoice supersedes it; the earlier one stays in your history untouched.",
       action: "Issue a new, superseding invoice",
+    });
+  }
+
+  const clash = overlapping[0];
+  if (clash) {
+    const others = overlapping.length - 1;
+    blockers.push({
+      id: "period-overlaps",
+      message: `Invoice #${clash.number} covers ${formatInvoiceDate(clash.periodStart)} to ${formatInvoiceDate(clash.periodEnd)}, which overlaps this period${others > 0 ? `, as ${others === 1 ? "does 1 other invoice" : `do ${others} other invoices`}` : ""}.`,
+      detail: "Hours in the overlapping days would be billed on both invoices.",
+      action: "Bill the overlapping days again",
     });
   }
 

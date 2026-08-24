@@ -26,9 +26,13 @@ export async function getInvoiceNumbers(projectId: string): Promise<string[]> {
   return rows.map((r) => r.number);
 }
 
-/** Invoices already covering this period — drives the already-invoiced warning
- *  (§7). Most recent first, so the newest supersedes in the message. */
-export async function getInvoicesForPeriod(
+/** Invoices whose period touches this one at all — the same period exactly, or
+ *  any partial overlap. Drives the already-invoiced and overlap warnings (§7).
+ *
+ *  Two ranges overlap unless one ends before the other starts; date keys are
+ *  "YYYY-MM-DD", so string comparison orders them correctly. Most recent first,
+ *  so the newest is the one named in the message. */
+export async function getOverlappingInvoices(
   projectId: string,
   periodStart: string,
   periodEnd: string,
@@ -36,7 +40,7 @@ export async function getInvoicesForPeriod(
   const db = await getDb();
   return db.select<InvoiceRow[]>(
     `SELECT * FROM invoices
-     WHERE projectId = $1 AND periodStart = $2 AND periodEnd = $3
+     WHERE projectId = $1 AND periodStart <= $3 AND periodEnd >= $2
      ORDER BY createdAt DESC`,
     [projectId, periodStart, periodEnd],
   );

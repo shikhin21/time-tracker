@@ -19,7 +19,7 @@ const clean: BlockerInput = {
   unratedHours: 0,
   fromName: "FNU Shikhin",
   clientName: "Centre for Applied Ethics Ltd",
-  existing: [],
+  priorInvoices: [],
 };
 
 const ids = (input: Partial<BlockerInput>) =>
@@ -116,7 +116,7 @@ describe("exportBlockers", () => {
   it("flags a period that was already invoiced, naming the prior invoice", () => {
     const [blocker] = exportBlockers({
       ...clean,
-      existing: [
+      priorInvoices: [
         {
           number: "036",
           invoiceDate: "2026-08-07",
@@ -129,6 +129,85 @@ describe("exportBlockers", () => {
     expect(blocker.message).toContain("#036");
     expect(blocker.message).toContain("08-01-2026 to 08-31-2026");
     expect(blocker.action).toBeDefined();
+  });
+
+  describe("overlapping a prior invoice", () => {
+    const july: BlockerInput["priorInvoices"][number] = {
+      number: "036",
+      invoiceDate: "2026-08-02",
+      periodStart: "2026-07-01",
+      periodEnd: "2026-07-31",
+    };
+
+    it("flags a period that runs into an earlier invoice's days", () => {
+      const [blocker] = exportBlockers({
+        ...clean,
+        periodStart: "2026-07-15",
+        periodEnd: "2026-07-20",
+        priorInvoices: [july],
+      });
+      expect(blocker.id).toBe("period-overlaps");
+      expect(blocker.message).toContain("#036");
+      expect(blocker.message).toContain("07-01-2026 to 07-31-2026");
+      expect(blocker.action).toBeDefined();
+    });
+
+    it("catches an overlap of a single day at either edge", () => {
+      const startsOnLastDay = ids({
+        periodStart: "2026-07-31",
+        periodEnd: "2026-08-31",
+        priorInvoices: [july],
+      });
+      const endsOnFirstDay = ids({
+        periodStart: "2026-06-01",
+        periodEnd: "2026-07-01",
+        priorInvoices: [july],
+      });
+      expect(startsOnLastDay).toContain("period-overlaps");
+      expect(endsOnFirstDay).toContain("period-overlaps");
+    });
+
+    it("stays quiet for a period that merely abuts one", () => {
+      expect(ids({ priorInvoices: [july] })).not.toContain("period-overlaps"); // Aug 1–31
+      expect(
+        ids({ periodStart: "2026-06-01", periodEnd: "2026-06-30", priorInvoices: [july] }),
+      ).not.toContain("period-overlaps");
+    });
+
+    it("re-checks rather than trusting the caller's filtering", () => {
+      // a non-overlapping row reaching this function must not be reported
+      expect(ids({ priorInvoices: [{ ...july, periodStart: "2020-01-01", periodEnd: "2020-01-31" }] }))
+        .toEqual([]);
+    });
+
+    it("reports an exact re-issue as such, not as an overlap", () => {
+      const reissue = ids({
+        priorInvoices: [{ ...july, periodStart: "2026-08-01", periodEnd: "2026-08-31" }],
+      });
+      expect(reissue).toEqual(["already-invoiced"]);
+    });
+
+    it("counts the other overlapping invoices when there are several", () => {
+      const withTwo = (extra: number) =>
+        exportBlockers({
+          ...clean,
+          periodStart: "2026-07-15",
+          periodEnd: "2026-08-15",
+          priorInvoices: [
+            july,
+            ...Array.from({ length: extra }, (_, i) => ({
+              ...july,
+              number: `03${i}`,
+              periodStart: "2026-08-01",
+              periodEnd: "2026-08-10",
+            })),
+          ],
+        }).find((b) => b.id === "period-overlaps");
+
+      expect(withTwo(0)?.message).toContain("which overlaps this period.");
+      expect(withTwo(1)?.message).toContain("as does 1 other invoice");
+      expect(withTwo(2)?.message).toContain("as do 2 other invoices");
+    });
   });
 
   it("flags an invoice with nothing billable on it", () => {
