@@ -539,8 +539,15 @@ input[aria-invalid="true"] {
   font-weight: 700;
 }
 
+/* today is outlined, not filled: dotted while it's merely today, solid once
+ * it's the selected day — so "today" and "selected" stay tellable apart */
 .day-cell.today {
   border-color: var(--project-accent, var(--color-border-strong));
+  border-style: dotted;
+}
+
+.day-cell.today.selected {
+  border-style: solid;
 }
 
 .day-cell.selected {
@@ -992,6 +999,8 @@ input[aria-invalid="true"] {
   text-align: center;
   padding: 3px 0;
   color: var(--color-text-primary);
+  /* transparent so today's dotted border doesn't resize the cell */
+  border: 1px solid transparent;
   border-radius: 4px;
   position: relative;
   z-index: 0; /* own stacking context so the weekend circle can sit behind the number */
@@ -1011,10 +1020,6 @@ input[aria-invalid="true"] {
   z-index: -1;
 }
 
-.year-day.today::before {
-  display: none; /* today's filled highlight replaces the weekend circle */
-}
-
 .year-day:hover {
   background: var(--project-accent-soft, var(--color-surface-sunken));
 }
@@ -1030,9 +1035,14 @@ input[aria-invalid="true"] {
 }
 
 .year-day.today {
-  background: var(--project-accent, var(--color-text-primary));
-  color: #fff;
+  border-color: var(--project-accent, var(--color-text-primary));
+  border-style: dotted;
+  color: var(--project-accent, var(--color-text-primary));
   font-weight: 700;
+}
+
+.year-day.today.selected {
+  border-style: solid;
 }
 
 .year-week-total {
@@ -1106,6 +1116,11 @@ input[aria-invalid="true"] {
 
 .weekday-card.today {
   border-color: var(--project-accent, var(--color-border-strong));
+  border-style: dotted;
+}
+
+.weekday-card.today.selected {
+  border-style: solid;
 }
 
 .weekday-card.selected {
