@@ -17,8 +17,9 @@ date-fns for locale-aware week math.
 The script takes a fresh machine from clone to a running app: it checks each
 prerequisite below, asks your permission before downloading or installing
 anything missing, installs the npm dependencies, and builds and launches the
-app in dev mode. Everything after this section is the manual version of the
-same steps.
+app in dev mode. The Prerequisites and Development sections below are the
+manual version of those same steps; running tests and cutting a release build
+stay manual either way.
 
 ## Prerequisites
 
