@@ -25,8 +25,14 @@ export function MainLayout() {
           {view === "week" && <WeekView />}
           {view === "invoices" && <InvoicesView />}
         </main>
-        {selectedDayKey && <DayDetailPanel key={selectedDayKey} dayKey={selectedDayKey} />}
-        {selectedInvoiceId && <InvoiceDetailPanel invoiceId={selectedInvoiceId} />}
+        {/* each drawer belongs to one kind of view, so which is shown follows
+            from the view rather than from remembering to clear a selection */}
+        {view !== "invoices" && selectedDayKey && (
+          <DayDetailPanel key={selectedDayKey} dayKey={selectedDayKey} />
+        )}
+        {view === "invoices" && selectedInvoiceId && (
+          <InvoiceDetailPanel invoiceId={selectedInvoiceId} />
+        )}
       </div>
       <QuickAddPopover />
       {settingsOpen && <SettingsPanel />}
