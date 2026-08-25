@@ -11,6 +11,7 @@ import {
 import { weekSplitTotals } from "../../lib/totals";
 import { toQuarters } from "../../lib/validation";
 import { useAppStore } from "../../store/appStore";
+import { PeriodNav } from "./PeriodNav";
 
 function WeekDayCard(props: {
   dateKey: string;
@@ -70,7 +71,9 @@ export function WeekView() {
   const today = todayKey();
 
   return (
-    <div className="week-view">
+    <div className="period-view">
+      <PeriodNav view="week" />
+      <div className="week-view">
       <div className="week-number-row">Week {weekNumber(weekKey)}</div>
       <div className="week-cards">
         {days.map((dateKey) => (
@@ -91,6 +94,7 @@ export function WeekView() {
         ) : (
           <span className="week-totals-split">{formatWeekSplitLabel(splits)}</span>
         )}
+      </div>
       </div>
     </div>
   );

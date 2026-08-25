@@ -12,6 +12,7 @@ import {
 import { formatDateKey, formatQuarters } from "../../lib/format";
 import { sumForDays, sumForMonth } from "../../lib/totals";
 import { useAppStore } from "../../store/appStore";
+import { PeriodNav } from "./PeriodNav";
 
 function YearMonthMini(props: {
   year: number;
@@ -103,7 +104,9 @@ export function YearView() {
   const today = todayKey();
 
   return (
-    <div className="year-grid">
+    <div className="period-view">
+      <PeriodNav view="year" />
+      <div className="year-grid">
       {Array.from({ length: 12 }, (_, i) => (
         <YearMonthMini
           key={i + 1}
@@ -112,7 +115,8 @@ export function YearView() {
           dayTotals={dayTotals}
           today={today}
         />
-      ))}
+        ))}
+      </div>
     </div>
   );
 }

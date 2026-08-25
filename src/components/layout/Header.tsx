@@ -1,13 +1,5 @@
 import { useState } from "react";
-import {
-  monthKeyOf,
-  todayKey,
-  weekDates,
-  weekKeyFor,
-  weekStraddlesYear,
-  yearOf,
-} from "../../lib/dates";
-import { formatDateKey } from "../../lib/format";
+import { weekKeyFor } from "../../lib/dates";
 import { useAppStore, type ViewKind } from "../../store/appStore";
 import { ProjectCreateModal } from "../project/ProjectCreateModal";
 import { ThemeToggle } from "./ThemeToggle";
@@ -45,23 +37,6 @@ function ProjectSwitcher() {
   );
 }
 
-/** The invoices view has no period, so it can't be labelled — the type says so
- *  rather than the switch carrying a case that never runs. */
-function periodLabel(view: Exclude<ViewKind, "invoices">, anchorKey: string): string {
-  switch (view) {
-    case "year":
-      return String(yearOf(anchorKey));
-    case "month":
-      return formatDateKey(`${monthKeyOf(anchorKey)}-01`, "LLLL yyyy");
-    case "week": {
-      const weekKey = weekKeyFor(anchorKey);
-      const end = weekDates(weekKey)[6];
-      const startPattern = weekStraddlesYear(weekKey) ? "MMM d, yyyy" : "MMM d";
-      return `${formatDateKey(weekKey, startPattern)} – ${formatDateKey(end, "MMM d, yyyy")}`;
-    }
-  }
-}
-
 function Breadcrumb() {
   const view = useAppStore((s) => s.view);
   const anchorKey = useAppStore((s) => s.anchorKey);
@@ -91,41 +66,10 @@ function Breadcrumb() {
   );
 }
 
-function PeriodNav() {
-  const view = useAppStore((s) => s.view);
-  const anchorKey = useAppStore((s) => s.anchorKey);
-  const selectedDayKey = useAppStore((s) => s.selectedDayKey);
-  const goPrev = useAppStore((s) => s.goPrev);
-  const goNext = useAppStore((s) => s.goNext);
-  const goToday = useAppStore((s) => s.goToday);
-  const isTodaySelected = selectedDayKey === todayKey();
-
-  if (view === "invoices") return null;
-
-  return (
-    <div className="period-nav">
-      <button
-        className={isTodaySelected ? "nav-btn active" : "btn btn-ghost"}
-        onClick={goToday}
-      >
-        Today
-      </button>
-      <button className="icon-btn" aria-label="Previous" onClick={goPrev}>
-        ◀
-      </button>
-      <span className="period-label">{periodLabel(view, anchorKey)}</span>
-      <button className="icon-btn" aria-label="Next" onClick={goNext}>
-        ▶
-      </button>
-    </div>
-  );
-}
-
 export function Header() {
   const openSettings = useAppStore((s) => s.openSettings);
   const view = useAppStore((s) => s.view);
   const setView = useAppStore((s) => s.setView);
-  const onInvoices = view === "invoices";
   return (
     <header className="header">
       <button
@@ -141,15 +85,9 @@ export function Header() {
       <ProjectSwitcher />
       <div className="header-divider header-divider--left" />
       <Breadcrumb />
-      {!onInvoices && (
-        <>
-          <div className="header-divider header-divider--right" />
-          <PeriodNav />
-        </>
-      )}
-      <div className="header-divider header-divider--left" />
+      <div className="header-divider header-divider--right" />
       <button
-        className={onInvoices ? "nav-btn active" : "btn btn-ghost"}
+        className={view === "invoices" ? "nav-btn active" : "btn btn-ghost"}
         onClick={() => setView("invoices")}
       >
         Invoices

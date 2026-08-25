@@ -13,6 +13,7 @@ import { formatDateKey, formatQuarters } from "../../lib/format";
 import { tasksForWeek, type TaskTotal } from "../../lib/tasks";
 import { sumForDays, sumForMonth } from "../../lib/totals";
 import { useAppStore } from "../../store/appStore";
+import { PeriodNav } from "./PeriodNav";
 import { InvoiceGenerator } from "../../invoice/InvoiceGenerator";
 
 /** How many task rows fit in a week row before the rest collapse into
@@ -104,7 +105,9 @@ export function MonthView() {
   );
 
   return (
-    <div className="month-grid" role="grid" aria-label={formatDateKey(`${monthKey}-01`, "LLLL yyyy")}>
+    <div className="period-view">
+      <PeriodNav view="month" />
+      <div className="month-grid" role="grid" aria-label={formatDateKey(`${monthKey}-01`, "LLLL yyyy")}>
       <div className="month-row month-header-row">
         <span className="week-num-cell" aria-label="Week number">
           Wk
@@ -160,9 +163,10 @@ export function MonthView() {
         </span>
       </div>
 
-      {invoicing && (
-        <InvoiceGenerator monthKey={monthKey} onClose={() => setInvoicing(false)} />
-      )}
+        {invoicing && (
+          <InvoiceGenerator monthKey={monthKey} onClose={() => setInvoicing(false)} />
+        )}
+      </div>
     </div>
   );
 }

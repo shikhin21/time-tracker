@@ -254,6 +254,22 @@ input[aria-invalid="true"] {
   font-weight: 600;
 }
 
+/* Each period view renders its own nav at the top of its content, so the
+ * header carries no knowledge of which views have a period.
+ *
+ * Deliberately not a flex container: the grids inside centre themselves with
+ * `margin: 0 auto`, and auto cross-axis margins switch off align-items:stretch,
+ * which would shrink-wrap a grid to its content instead of filling the view. */
+.period-view > .period-nav {
+  position: sticky;
+  top: 0; /* the scrollport is .view-scroll's padding box, so 0 pins it flush */
+  z-index: 20;
+  width: max-content;
+  margin: 0 auto 12px;
+  padding: 6px 0 10px;
+  background: var(--color-background);
+}
+
 .period-nav {
   display: flex;
   align-items: center;
