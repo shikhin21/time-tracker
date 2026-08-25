@@ -271,7 +271,7 @@ export function InvoiceGenerator({ monthKey, onClose }: { monthKey: string; onCl
             {savedTo ? "Done" : "Cancel"}
           </button>
           <button
-            className="btn btn-primary"
+            className="btn btn-neutral"
             disabled={!cleared || busy}
             onClick={() => void onExport()}
           >

@@ -84,7 +84,7 @@ export function InvoiceHistory({ onClose }: { onClose: () => void }) {
             <button className="btn" onClick={() => setOpened(null)}>
               Back
             </button>
-            <button className="btn btn-primary" disabled={busy} onClick={() => void saveAgain()}>
+            <button className="btn btn-neutral" disabled={busy} onClick={() => void saveAgain()}>
               {busy ? "Saving…" : "Save PDF again"}
             </button>
           </div>

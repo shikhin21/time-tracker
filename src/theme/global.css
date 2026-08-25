@@ -158,6 +158,22 @@ input[aria-invalid="true"] {
   filter: none;
 }
 
+/* Primary action without the project hue. The invoice screens use it because
+ * an invoice is a document for the client, not a view of the project — the
+ * accent belongs to the calendar, not to what gets sent out.
+ * Hover shifts to the secondary text colour rather than filtering brightness,
+ * which would blow out the near-white this becomes in dark mode. */
+.btn-neutral {
+  background: var(--color-text-primary);
+  border-color: var(--color-text-primary);
+  color: var(--color-surface);
+}
+
+.btn-neutral:hover {
+  background: var(--color-text-secondary);
+  border-color: var(--color-text-secondary);
+}
+
 .btn-danger {
   color: var(--color-danger);
   border-color: var(--color-danger);
@@ -661,7 +677,7 @@ input[aria-invalid="true"] {
 }
 
 .invoice-blockers.cleared {
-  border-left-color: var(--project-accent, var(--color-border-strong));
+  border-left-color: var(--color-border-strong);
 }
 
 .invoice-blockers > strong {
