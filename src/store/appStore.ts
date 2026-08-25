@@ -113,6 +113,25 @@ function shiftAnchor(view: ViewKind, anchorKey: string, delta: number): string {
   }
 }
 
+/** What changing view resets. Each drawer belongs to one view, so leaving that
+ *  view closes it.
+ *
+ *  Every path that changes `view` goes through here, because setView isn't the
+ *  only one: the breadcrumb's Week drills rather than sets, and creating a
+ *  project lands you on month. Clearing it in setView alone left the invoice
+ *  drawer open over the week view. */
+function enterView(
+  view: ViewKind,
+  state: Pick<AppState, "selectedDayKey" | "selectedInvoiceId">,
+): Partial<AppState> {
+  return {
+    view,
+    quickAdd: null,
+    selectedDayKey: view === "invoices" ? null : state.selectedDayKey,
+    selectedInvoiceId: view === "invoices" ? state.selectedInvoiceId : null,
+  };
+}
+
 export const useAppStore = create<AppState>((set, get) => ({
   status: "loading",
   error: null,
@@ -200,10 +219,10 @@ export const useAppStore = create<AppState>((set, get) => ({
     const projects = await projectsRepo.listProjects();
     applyProjectAccent(project.color, get().themeMode);
     set((s) => ({
+      ...enterView("month", s),
       projects,
       currentProjectId: project.id,
       status: "ready",
-      view: "month",
       anchorKey: todayKey(),
       dataVersion: s.dataVersion + 1,
     }));
@@ -219,19 +238,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setView(view) {
-    // the two views own different drawers, so leaving one closes its own
-    set({
-      view,
-      quickAdd: null,
-      selectedDayKey: view === "invoices" ? null : get().selectedDayKey,
-      selectedInvoiceId: view === "invoices" ? get().selectedInvoiceId : null,
-    });
+    set(enterView(view, get()));
   },
   drillToMonth(monthKey) {
-    set({ view: "month", anchorKey: `${monthKey}-01`, quickAdd: null });
+    set({ ...enterView("month", get()), anchorKey: `${monthKey}-01` });
   },
   drillToWeek(weekKey) {
-    set({ view: "week", anchorKey: weekKey, quickAdd: null });
+    set({ ...enterView("week", get()), anchorKey: weekKey });
   },
   openDay(dateKey, anchor, withQuickAdd) {
     // a single tap on today almost always means "log an entry now", so the
