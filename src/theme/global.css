@@ -195,12 +195,17 @@ input[aria-invalid="true"] {
   background: var(--color-surface-sunken);
 }
 
-/* Marks a ghost button as on. Colour only — no change to padding, border or
- * weight — so toggling it can't nudge the layout it sits in. */
+/* Marks a ghost button as on: filled with the project's colour, labelled in
+ * the surface colour behind it — which stays legible in dark mode, where the
+ * accents are light and white text on them wouldn't be.
+ *
+ * Colour only — no change to padding, border width or weight — so toggling it
+ * can't nudge the layout it sits in. */
 .btn-ghost.active,
 .btn-ghost.active:hover {
-  background: var(--project-accent-soft, var(--color-surface-sunken));
-  color: var(--project-accent, var(--color-text-primary));
+  background: var(--project-accent, var(--color-text-primary));
+  border-color: var(--project-accent, var(--color-text-primary));
+  color: var(--color-surface);
 }
 
 .icon-btn {
