@@ -42,7 +42,10 @@ export function PeriodNav({ view }: { view: PeriodView }) {
 
   return (
     <div className="period-nav">
-      <button className={isTodaySelected ? "nav-btn active" : "btn btn-ghost"} onClick={goToday}>
+      <button
+        className={`btn btn-ghost${isTodaySelected ? " active" : ""}`}
+        onClick={goToday}
+      >
         Today
       </button>
       <button className="icon-btn" aria-label="Previous" onClick={goPrev}>

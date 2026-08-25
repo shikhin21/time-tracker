@@ -195,6 +195,14 @@ input[aria-invalid="true"] {
   background: var(--color-surface-sunken);
 }
 
+/* Marks a ghost button as on. Colour only — no change to padding, border or
+ * weight — so toggling it can't nudge the layout it sits in. */
+.btn-ghost.active,
+.btn-ghost.active:hover {
+  background: var(--project-accent-soft, var(--color-surface-sunken));
+  color: var(--project-accent, var(--color-text-primary));
+}
+
 .icon-btn {
   width: 28px;
   height: 28px;
