@@ -86,6 +86,10 @@ export const LAYOUT = {
   border: "#000000",
   fontSizePt: 10,
   nameFontSizePt: 12,
+  /** The page title. Grey and unbolded on purpose: it names the document
+   *  without competing with the biller's name or the amount due, which are
+   *  what the weight on this sheet is reserved for. */
+  title: { fontSizePt: 26, trackingPt: 3, color: "#8A8A8A", spaceAfterPt: 18 },
   /** Only the item table is ruled; the header and totals blocks are borderless.
    *  Vertical rhythm, in points/px — the two units coincide at 96dpi for the
    *  preview and are points in the PDF. */

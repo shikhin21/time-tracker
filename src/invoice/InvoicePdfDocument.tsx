@@ -51,12 +51,22 @@ const styles = StyleSheet.create({
    *  against the gap, value left-aligned after it. */
   metaColumns: { flexDirection: "row", justifyContent: "flex-end" },
   metaLabel: { textAlign: "right", marginRight: LAYOUT.space.metaGap },
+  title: {
+    fontFamily: REGULAR,
+    fontSize: LAYOUT.title.fontSizePt,
+    letterSpacing: LAYOUT.title.trackingPt,
+    color: LAYOUT.title.color,
+    textAlign: "center",
+    marginBottom: LAYOUT.title.spaceAfterPt,
+  },
 });
 
 export function InvoicePdfDocument({ doc }: { doc: InvoiceDoc }) {
   return (
     <Document title={`Invoice ${doc.number}`}>
       <Page size="LETTER" style={styles.page}>
+        <Text style={styles.title}>INVOICE</Text>
+
         {/* from-block | invoice meta — borderless */}
         <View style={styles.table}>
           <View style={styles.row}>

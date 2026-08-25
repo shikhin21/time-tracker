@@ -740,6 +740,17 @@ input[aria-invalid="true"] {
   overflow-x: auto;
 }
 
+/* names the document without competing with the name or the amount due:
+ * grey, and regular weight against the sheet's bold default */
+.invoice-title {
+  font-size: 26pt;
+  font-weight: 400;
+  letter-spacing: 3pt;
+  color: #8a8a8a;
+  text-align: center;
+  margin-bottom: 18pt;
+}
+
 .invoice-table {
   width: 100%;
   border-collapse: collapse;

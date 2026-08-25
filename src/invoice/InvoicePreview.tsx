@@ -19,6 +19,7 @@ const totalsW = pct(LAYOUT.totalsCols);
 export function InvoicePreview({ doc }: { doc: InvoiceDoc }) {
   return (
     <div className="invoice-sheet">
+      <div className="invoice-title">INVOICE</div>
       <table className="invoice-table">
         <colgroup>
           {headerW.map((w, i) => (
