@@ -13,9 +13,9 @@
     "windows": [
       {
         "title": "Time Tracker",
-        "width": 1100,
+        "width": 1240,
         "height": 760,
-        "minWidth": 1000,
+        "minWidth": 1180,
         "minHeight": 700
       }
     ],

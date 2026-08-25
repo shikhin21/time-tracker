@@ -20,7 +20,7 @@ import {
   type ThemePreference,
 } from "../theme/applyTheme";
 
-export type ViewKind = "year" | "month" | "week";
+export type ViewKind = "year" | "month" | "week" | "invoices";
 export type AppStatus = "loading" | "onboarding" | "ready" | "error";
 
 /** Viewport rect of the tapped day cell (structurally DOMRect-compatible). */
@@ -41,6 +41,8 @@ interface AppState {
    *  year / month / week from it. */
   anchorKey: string;
   selectedDayKey: string | null;
+  /** The invoice open in the drawer of the invoices view. */
+  selectedInvoiceId: string | null;
   /** Quick-add bubble state: armed by a single tap on today, or a double-tap
    *  on any other day. */
   quickAdd: { dateKey: string; anchor: AnchorRect } | null;
@@ -71,6 +73,8 @@ interface AppState {
   /** `withQuickAdd` overrides the today-only default, so a double-tap can arm
    *  the bubble on any day. */
   openDay(dateKey: string, anchor?: AnchorRect, withQuickAdd?: boolean): void;
+  openInvoice(invoiceId: string): void;
+  closeInvoice(): void;
   closeDay(): void;
   closeQuickAdd(): void;
   openSettings(): void;
@@ -104,6 +108,8 @@ function shiftAnchor(view: ViewKind, anchorKey: string, delta: number): string {
       return `${addMonthsKey(monthKeyOf(anchorKey), delta)}-01`;
     case "week":
       return addWeeksKey(weekKeyFor(anchorKey), delta);
+    case "invoices":
+      return anchorKey; // no period to step through; the nav is hidden there
   }
 }
 
@@ -115,6 +121,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   view: "month",
   anchorKey: todayKey(),
   selectedDayKey: null,
+  selectedInvoiceId: null,
   quickAdd: null,
   settingsOpen: false,
   themePreference: hintedPreference,
@@ -178,7 +185,13 @@ export const useAppStore = create<AppState>((set, get) => ({
     const project = get().projects.find((p) => p.id === id);
     if (!project) return;
     applyProjectAccent(project.color, get().themeMode);
-    set({ currentProjectId: id, selectedDayKey: null, quickAdd: null, settingsOpen: false });
+    set({
+      currentProjectId: id,
+      selectedDayKey: null,
+      selectedInvoiceId: null,
+      quickAdd: null,
+      settingsOpen: false,
+    });
     await settingsRepo.setSetting(settingsRepo.LAST_SELECTED_PROJECT_ID, id);
   },
 
@@ -206,7 +219,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   setView(view) {
-    set({ view, quickAdd: null });
+    // the two views own different drawers, so leaving one closes its own
+    set({
+      view,
+      quickAdd: null,
+      selectedDayKey: view === "invoices" ? null : get().selectedDayKey,
+      selectedInvoiceId: view === "invoices" ? get().selectedInvoiceId : null,
+    });
   },
   drillToMonth(monthKey) {
     set({ view: "month", anchorKey: `${monthKey}-01`, quickAdd: null });
@@ -223,6 +242,12 @@ export const useAppStore = create<AppState>((set, get) => ({
       selectedDayKey: dateKey,
       quickAdd: wantsQuickAdd && anchor ? { dateKey, anchor } : null,
     });
+  },
+  openInvoice(invoiceId) {
+    set({ selectedInvoiceId: invoiceId });
+  },
+  closeInvoice() {
+    set({ selectedInvoiceId: null });
   },
   closeDay() {
     set({ selectedDayKey: null, quickAdd: null });

@@ -7,7 +7,6 @@ import {
   weekStraddlesYear,
   yearOf,
 } from "../../lib/dates";
-import { InvoiceHistory } from "../../invoice/InvoiceHistory";
 import { formatDateKey } from "../../lib/format";
 import { useAppStore, type ViewKind } from "../../store/appStore";
 import { ProjectCreateModal } from "../project/ProjectCreateModal";
@@ -46,7 +45,9 @@ function ProjectSwitcher() {
   );
 }
 
-function periodLabel(view: ViewKind, anchorKey: string): string {
+/** The invoices view has no period, so it can't be labelled — the type says so
+ *  rather than the switch carrying a case that never runs. */
+function periodLabel(view: Exclude<ViewKind, "invoices">, anchorKey: string): string {
   switch (view) {
     case "year":
       return String(yearOf(anchorKey));
@@ -99,6 +100,8 @@ function PeriodNav() {
   const goToday = useAppStore((s) => s.goToday);
   const isTodaySelected = selectedDayKey === todayKey();
 
+  if (view === "invoices") return null;
+
   return (
     <div className="period-nav">
       <button
@@ -120,7 +123,9 @@ function PeriodNav() {
 
 export function Header() {
   const openSettings = useAppStore((s) => s.openSettings);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  const view = useAppStore((s) => s.view);
+  const setView = useAppStore((s) => s.setView);
+  const onInvoices = view === "invoices";
   return (
     <header className="header">
       <button
@@ -136,15 +141,21 @@ export function Header() {
       <ProjectSwitcher />
       <div className="header-divider header-divider--left" />
       <Breadcrumb />
-      <div className="header-divider header-divider--right" />
-      <PeriodNav />
+      {!onInvoices && (
+        <>
+          <div className="header-divider header-divider--right" />
+          <PeriodNav />
+        </>
+      )}
       <div className="header-divider header-divider--left" />
-      <button className="btn btn-ghost" onClick={() => setHistoryOpen(true)}>
+      <button
+        className={onInvoices ? "nav-btn active" : "btn btn-ghost"}
+        onClick={() => setView("invoices")}
+      >
         Invoices
       </button>
       <div className="spacer" />
       <ThemeToggle />
-      {historyOpen && <InvoiceHistory onClose={() => setHistoryOpen(false)} />}
     </header>
   );
 }

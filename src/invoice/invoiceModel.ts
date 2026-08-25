@@ -194,14 +194,19 @@ export function coversWholeMonth(periodStart: string, periodEnd: string): boolea
   );
 }
 
-/** `Invoice036 - Jul 2026.pdf` for a full month, or
- *  `Invoice036 - 1 Jul 2026 to 10 Jul 2026.pdf` for any other span — the
- *  period is only spelled out when the month's name wouldn't describe it. */
-export function invoiceFilename(doc: InvoiceDoc): string {
+/** "Jul 2026" for a whole month, "1 Jul 2026 to 10 Jul 2026" for anything
+ *  else — the dates are only spelled out when a month's name wouldn't describe
+ *  the period. Names the file, and labels a row in the invoices list. */
+export function describeInvoicePeriod(periodStart: string, periodEnd: string): string {
   const day = (key: string) =>
     `${dayOfKey(key)} ${monthAbbreviation(key)} ${yearOfKey(key)}`;
-  const period = coversWholeMonth(doc.periodStart, doc.periodEnd)
-    ? `${monthAbbreviation(doc.periodStart)} ${yearOfKey(doc.periodStart)}`
-    : `${day(doc.periodStart)} to ${day(doc.periodEnd)}`;
-  return `Invoice${doc.number.trim()} - ${period}.pdf`;
+  return coversWholeMonth(periodStart, periodEnd)
+    ? `${monthAbbreviation(periodStart)} ${yearOfKey(periodStart)}`
+    : `${day(periodStart)} to ${day(periodEnd)}`;
+}
+
+/** `Invoice036 - Jul 2026.pdf`, or `Invoice036 - 1 Jul 2026 to 10 Jul 2026.pdf`
+ *  when the period isn't a whole month. */
+export function invoiceFilename(doc: InvoiceDoc): string {
+  return `Invoice${doc.number.trim()} - ${describeInvoicePeriod(doc.periodStart, doc.periodEnd)}.pdf`;
 }

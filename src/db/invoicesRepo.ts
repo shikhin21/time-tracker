@@ -8,10 +8,13 @@ export interface InvoiceWithLines {
   lines: InvoiceLineItemRow[];
 }
 
+/** Newest first — by the date on the invoice rather than when the row was
+ *  written, so the list reads in the order the invoices were issued even if one
+ *  was recorded late or backdated. */
 export async function getInvoices(projectId: string): Promise<InvoiceRow[]> {
   const db = await getDb();
   return db.select<InvoiceRow[]>(
-    "SELECT * FROM invoices WHERE projectId = $1 ORDER BY createdAt DESC",
+    "SELECT * FROM invoices WHERE projectId = $1 ORDER BY invoiceDate DESC, createdAt DESC",
     [projectId],
   );
 }
